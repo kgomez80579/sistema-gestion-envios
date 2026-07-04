@@ -32,7 +32,6 @@ public class Usuario implements Serializable {
     private String email;
 
     @Column(nullable = false, length = 255)
-    @NotBlank(message = "La contraseña no puede estar vacía.")
     @Size(max = 255, message = "La contraseña no puede tener más de 255 caracteres.")
     private String password;
 

@@ -40,8 +40,21 @@ public class UsuarioService {
 
     @Transactional
     public void save(Usuario usuario) {
+
+        if (usuario.getIdUsuario() != null) {
+            Usuario usuarioActual = usuarioRepository.findById(usuario.getIdUsuario()).orElse(null);
+
+            if (usuarioActual != null) {
+                if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+                    usuario.setPassword(usuarioActual.getPassword());
+                }
+            }
+        }
+
         if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
-            if (!usuario.getPassword().startsWith("$2a$") && !usuario.getPassword().startsWith("$2b$")) {
+            if (!usuario.getPassword().startsWith("$2a$")
+                    && !usuario.getPassword().startsWith("$2b$")
+                    && !usuario.getPassword().startsWith("$2y$")) {
                 usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
             }
         }
