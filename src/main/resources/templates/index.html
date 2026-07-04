@@ -1,12 +1,58 @@
 <!DOCTYPE html>
-<!-- Mi primer Proyecto-->
-<html>
-    <head>
-        <title>GestionEnvios</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head th:replace="~{general/fragmentos :: head}"/>
+
     <body>
-        <div>mi primer proyecto</div>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container mt-5">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h2>Sistema Web de Gestión de Envíos y Recolección de Paquetes</h2>
+                    <p class="lead">
+                        Plataforma para administrar usuarios, roles, paquetes y envíos del sistema.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-primary text-white">
+                            <h4>Paquetes</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-box fa-4x mb-3"></i>
+                            <p>Gestión de paquetes registrados en el sistema.</p>
+                            <a th:href="@{/paquete/listado}" class="btn btn-primary">
+                                Ver paquetes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-success text-white">
+                            <h4>Usuarios</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-users fa-4x mb-3"></i>
+                            <p>Administración de usuarios y roles del sistema.</p>
+                            <a th:href="@{/usuario/listado}" class="btn btn-success">
+                                Ver usuarios
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <footer th:replace="~{general/fragmentos :: footer}"/>
     </body>
 </html>

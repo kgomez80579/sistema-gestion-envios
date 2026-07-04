@@ -28,8 +28,8 @@ public class RolService {
     }
 
     @Transactional(readOnly = true)
-    public Rol getRolPorNombre(String nombre) {
-        return rolRepository.findByNombre(nombre);
+    public Rol getRolPorNombre(String nombreRol) {
+        return rolRepository.findByNombreRol(nombreRol);
     }
 
     @Transactional

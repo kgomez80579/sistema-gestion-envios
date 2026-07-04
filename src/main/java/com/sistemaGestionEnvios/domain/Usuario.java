@@ -20,26 +20,38 @@ public class Usuario implements Serializable {
     @Column(name = "id_usuario")
     private Integer idUsuario;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 50)
     @NotBlank(message = "El nombre no puede estar vacío.")
-    @Size(max = 100, message = "El nombre no puede tener más de 100 caracteres.")
+    @Size(max = 50, message = "El nombre no puede tener más de 50 caracteres.")
     private String nombre;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, length = 80)
+    @NotBlank(message = "Los apellidos no pueden estar vacíos.")
+    @Size(max = 80, message = "Los apellidos no pueden tener más de 80 caracteres.")
+    private String apellidos;
+
+    @Column(name = "correo", nullable = false, unique = true, length = 100)
     @NotBlank(message = "El correo no puede estar vacío.")
     @Email(message = "Debe ingresar un correo válido.")
     @Size(max = 100, message = "El correo no puede tener más de 100 caracteres.")
-    private String email;
+    private String correo;
 
-    @Column(nullable = false, length = 255)
-    @Size(max = 255, message = "La contraseña no puede tener más de 255 caracteres.")
+    @Column(nullable = false, length = 512)
+    @Size(max = 512, message = "La contraseña no puede tener más de 512 caracteres.")
     private String password;
 
-    @Column(name = "activo")
-    private Boolean activo;
+    @Column(length = 25)
+    @Size(max = 25, message = "El teléfono no puede tener más de 25 caracteres.")
+    private String telefono;
 
-    @Column(name = "fecha_creacion")
+    @Column(length = 20)
+    private String estado;
+
+    @Column(name = "fecha_creacion", insertable = false, updatable = false)
     private LocalDateTime fechaCreacion;
+
+    @Column(name = "fecha_modificacion", insertable = false, updatable = false)
+    private LocalDateTime fechaModificacion;
 
     @ManyToOne
     @JoinColumn(name = "id_rol", nullable = false)
@@ -47,12 +59,8 @@ public class Usuario implements Serializable {
 
     @PrePersist
     public void prePersist() {
-        if (activo == null) {
-            activo = true;
-        }
-
-        if (fechaCreacion == null) {
-            fechaCreacion = LocalDateTime.now();
+        if (estado == null || estado.isBlank()) {
+            estado = "Activo";
         }
     }
 }

@@ -10,6 +10,16 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import lombok.Data;
+
 @Data
 @Entity
 @Table(name = "paquetes")
@@ -36,29 +46,9 @@ public class Paquete implements Serializable {
     @Size(max = 100, message = "Las dimensiones no pueden tener más de 100 caracteres.")
     private String dimensiones;
 
-    @Column(nullable = false, length = 50)
-    @NotBlank(message = "El estado no puede estar vacío.")
-    @Size(max = 50, message = "El estado no puede tener más de 50 caracteres.")
-    private String estado;
+    @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
 
-    @Column(name = "fecha_registro")
-    private LocalDateTime fechaRegistro;
-
-    @Column(name = "activo")
-    private Boolean activo;
-
-    @PrePersist
-    public void prePersist() {
-        if (fechaRegistro == null) {
-            fechaRegistro = LocalDateTime.now();
-        }
-
-        if (activo == null) {
-            activo = true;
-        }
-
-        if (estado == null || estado.isBlank()) {
-            estado = "Registrado";
-        }
-    }
+    @Column(name = "fecha_modificacion", insertable = false, updatable = false)
+    private LocalDateTime fechaModificacion;
 }

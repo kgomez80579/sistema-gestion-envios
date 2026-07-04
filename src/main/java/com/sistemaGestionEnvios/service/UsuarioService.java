@@ -22,9 +22,6 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public List<Usuario> getUsuarios(boolean activo) {
-        if (activo) {
-            return usuarioRepository.findByActivoTrue();
-        }
         return usuarioRepository.findAll();
     }
 
@@ -34,8 +31,13 @@ public class UsuarioService {
     }
 
     @Transactional(readOnly = true)
+    public Usuario getUsuarioPorCorreo(String correo) {
+        return usuarioRepository.findByCorreo(correo);
+    }
+
+    @Transactional(readOnly = true)
     public Usuario getUsuarioPorEmail(String email) {
-        return usuarioRepository.findByEmail(email);
+        return usuarioRepository.findByCorreo(email);
     }
 
     @Transactional
@@ -49,6 +51,10 @@ public class UsuarioService {
                     usuario.setPassword(usuarioActual.getPassword());
                 }
             }
+        }
+
+        if (usuario.getEstado() == null || usuario.getEstado().isBlank()) {
+            usuario.setEstado("Activo");
         }
 
         if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
@@ -67,7 +73,12 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new IllegalArgumentException("El usuario con ID " + idUsuario + " no existe."));
 
-        usuario.setActivo(!usuario.getActivo());
+        if ("Activo".equalsIgnoreCase(usuario.getEstado())) {
+            usuario.setEstado("Inactivo");
+        } else {
+            usuario.setEstado("Activo");
+        }
+
         usuarioRepository.save(usuario);
     }
 

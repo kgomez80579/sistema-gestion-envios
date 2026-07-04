@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
@@ -18,8 +19,14 @@ public class Rol implements Serializable {
     @Column(name = "id_rol")
     private Integer idRol;
 
-    @Column(name = "nombre", unique = true, nullable = false, length = 50)
+    @Column(name = "nombre_rol", nullable = false, unique = true, length = 30)
     @NotBlank(message = "El nombre del rol no puede estar vacío.")
-    @Size(max = 50, message = "El nombre del rol no puede tener más de 50 caracteres.")
-    private String nombre;
+    @Size(max = 30, message = "El nombre del rol no puede tener más de 30 caracteres.")
+    private String nombreRol;
+
+    @Column(name = "fecha_creacion", insertable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @Column(name = "fecha_modificacion", insertable = false, updatable = false)
+    private LocalDateTime fechaModificacion;
 }

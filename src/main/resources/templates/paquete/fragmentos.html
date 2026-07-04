@@ -54,17 +54,6 @@
                                            maxlength="100"/>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label>[[#{paquete.estado}]]</label>
-                                    <input type="text" name="estado" class="form-control"
-                                           value="Registrado" maxlength="50" required/>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>[[#{paquete.activo}]]</label>
-                                    <input type="checkbox" name="activo" class="form-check-input" checked/>
-                                </div>
-
                             </div>
 
                             <div class="modal-footer">
@@ -100,8 +89,6 @@
                                             <th>[[#{paquete.descripcion}]]</th>
                                             <th>[[#{paquete.peso}]]</th>
                                             <th>[[#{paquete.dimensiones}]]</th>
-                                            <th>[[#{paquete.estado}]]</th>
-                                            <th>[[#{paquete.activo}]]</th>
                                             <th sec:authorize="hasRole('ADMIN')"></th>
                                         </tr>
                                     </thead>
@@ -112,8 +99,6 @@
                                             <td>[[${p.descripcion}]]</td>
                                             <td class="text-end">[[${p.peso}]] kg</td>
                                             <td>[[${p.dimensiones}]]</td>
-                                            <td>[[${p.estado}]]</td>
-                                            <td th:text="${p.activo} ? 'Activo':'Inactivo'"></td>
 
                                             <td sec:authorize="hasRole('ADMIN')">
                                                 <button type="button" class="btn btn-danger"
@@ -202,18 +187,6 @@
                                             <label>[[#{paquete.dimensiones}]]</label>
                                             <input type="text" class="form-control" name="dimensiones"
                                                    th:field="*{dimensiones}" maxlength="100"/>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label>[[#{paquete.estado}]]</label>
-                                            <input type="text" class="form-control" name="estado"
-                                                   th:field="*{estado}" maxlength="50" required/>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label>[[#{paquete.activo}]]</label>
-                                            <input class="form-check-input" type="checkbox"
-                                                   name="activo" id="activo" th:field="*{activo}"/>
                                         </div>
                                     </div>
                                 </div>

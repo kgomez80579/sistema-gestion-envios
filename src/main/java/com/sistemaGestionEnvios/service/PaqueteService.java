@@ -19,9 +19,6 @@ public class PaqueteService {
 
     @Transactional(readOnly = true)
     public List<Paquete> getPaquetes(boolean activo) {
-        if (activo) {
-            return paqueteRepository.findByActivoTrue();
-        }
         return paqueteRepository.findAll();
     }
 
@@ -32,15 +29,6 @@ public class PaqueteService {
 
     @Transactional
     public void save(Paquete paquete) {
-        paqueteRepository.save(paquete);
-    }
-
-    @Transactional
-    public void cambiarActivo(Integer idPaquete) {
-        Paquete paquete = paqueteRepository.findById(idPaquete)
-                .orElseThrow(() -> new IllegalArgumentException("El paquete con ID " + idPaquete + " no existe."));
-
-        paquete.setActivo(!paquete.getActivo());
         paqueteRepository.save(paquete);
     }
 
