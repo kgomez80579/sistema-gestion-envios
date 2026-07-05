@@ -1,4 +1,3 @@
-<!-- Fragmento #1 que irá en el head de todas las páginas -->
 <head th:fragment="head">
     <title>Sistema Gestión de Envíos</title>
     <meta charset="UTF-8"/>
@@ -10,8 +9,6 @@
     <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
 </head>
 
-
-<!-- Fragmento #2 define el encabezado de las páginas -->
 <header th:fragment="header" class="header">
     <nav class="navbar navbar-expand-sm navbar-dark bg-dark p-0">
         <div class="container">
@@ -36,6 +33,18 @@
                     <li class="nav-item px-2">
                         <a class="nav-link" th:href="@{/usuario/listado}">
                             [[#{plantilla.usuarios}]]
+                        </a>
+                    </li>
+
+                    <li class="nav-item px-2">
+                        <a class="nav-link" th:href="@{/cliente/listado}">
+                            [[#{plantilla.clientes}]]
+                        </a>
+                    </li>
+
+                    <li class="nav-item px-2">
+                        <a class="nav-link" th:href="@{/direccion/listado}">
+                            [[#{plantilla.direcciones}]]
                         </a>
                     </li>
                 </ul>
@@ -78,8 +87,6 @@
     </section>
 </header>
 
-
-<!-- Fragmento #3 define el footer -->
 <footer th:fragment="footer" class="p-2 mt-5 bg-info text-white">
     <p class="lead text-center">[[#{plantilla.derechos}]] &COPY;</p>
 
@@ -103,8 +110,6 @@
     </script>
 </footer>
 
-
-<!-- Fragmento #4 define una ventana tipo Toast para mostrar mensajes al usuario -->
 <section th:fragment="mostrarToast">
     <div aria-live="polite" aria-atomic="true"
          class="position-fixed top-50 start-50 translate-middle"

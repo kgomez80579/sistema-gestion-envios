@@ -13,7 +13,7 @@
                 <div class="col-md-12 text-center">
                     <h2>Sistema Web de Gestión de Envíos y Recolección de Paquetes</h2>
                     <p class="lead">
-                        Plataforma para administrar usuarios, roles, paquetes y envíos del sistema.
+                        Plataforma para administrar usuarios, roles, paquetes, clientes, direcciones y envíos del sistema.
                     </p>
                 </div>
             </div>
@@ -45,6 +45,40 @@
                             <p>Administración de usuarios y roles del sistema.</p>
                             <a th:href="@{/usuario/listado}" class="btn btn-success">
                                 Ver usuarios
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mt-4">
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-warning text-dark">
+                            <h4>Clientes</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-user-check fa-4x mb-3"></i>
+                            <p>Gestión de clientes registrados en el sistema.</p>
+                            <a th:href="@{/cliente/listado}" class="btn btn-warning">
+                                Ver clientes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-info text-white">
+                            <h4>Direcciones</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-location-dot fa-4x mb-3"></i>
+                            <p>Gestión de direcciones registradas en el sistema.</p>
+                            <a th:href="@{/direccion/listado}" class="btn btn-info text-white">
+                                Ver direcciones
                             </a>
                         </div>
                     </div>
