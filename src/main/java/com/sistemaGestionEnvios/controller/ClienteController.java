@@ -38,7 +38,7 @@ public class ClienteController {
         model.addAttribute("clientes", clientes);
         model.addAttribute("totalClientes", clientes.size());
 
-        var usuarios = usuarioService.getUsuarios(false);
+        var usuarios = usuarioService.getUsuariosPorRol("CLIENTE");
         model.addAttribute("usuarios", usuarios);
 
         model.addAttribute("cliente", new Cliente());
