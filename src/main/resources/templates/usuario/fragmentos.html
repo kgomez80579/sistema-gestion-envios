@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head th:replace="~{general/fragmentos :: head}"/>
+
+    <body>
+
+        <!-- Fragmento para agregar usuario -->
+        <section th:fragment="agregar">
+            <div class="row py-4 mb-2 bg-light">
+                <div class="col-md-1"></div>
+                <div class="col-md-3" sec:authorize="hasRole('ADMIN')">
+                    <button type="button" class="btn btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#agregarUsuarioModal">
+                        <i class="fa-solid fa-plus"></i> [[#{usuario.agregar}]]
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal fade" id="agregarUsuarioModal" tabindex="-1"
+                 aria-labelledby="agregarUsuarioLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-info text-white">
+                            <h1 class="modal-title fs-5" id="agregarUsuarioLabel">
+                                <i class="fa-solid fa-user-plus"></i> [[#{usuario.agregar}]]
+                            </h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+
+                        <form th:action="@{/usuario/guardar}" th:object="${usuario}"
+                              class="was-validated" method="post">
+
+                            <div class="modal-body">
+
+                                <div class="mb-3">
+                                    <label>[[#{usuario.nombre}]]</label>
+                                    <input type="text" name="nombre" class="form-control"
+                                           maxlength="50" required/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{usuario.apellidos}]]</label>
+                                    <input type="text" name="apellidos" class="form-control"
+                                           maxlength="80" required/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{usuario.correo}]]</label>
+                                    <input type="email" name="correo" class="form-control"
+                                           maxlength="100" required/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{usuario.password}]]</label>
+                                    <input type="password" name="password" class="form-control"
+                                           maxlength="512" required/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{usuario.telefono}]]</label>
+                                    <input type="text" name="telefono" class="form-control"
+                                           maxlength="25"/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{usuario.rol}]]</label>
+                                    <select name="rol.idRol" class="form-select" required>
+                                        <option th:each="r : ${roles}" th:value="${r.idRol}">
+                                            [[${r.nombreRol}]]
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{usuario.estado}]]</label>
+                                    <select name="estado" class="form-select" required>
+                                        <option value="Activo">Activo</option>
+                                        <option value="Inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk"></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para listado de usuarios -->
+        <section th:fragment="listado" class="p-3">
+            <div class="row p-3">
+                <div class="col-md-9">
+                    <div class="card p-2">
+                        <div class="card-header">
+                            <h4>[[#{usuario.listado}]]</h4>
+                        </div>
+
+                        <div class="card-body">
+                            <div th:if="${usuarios != null and !usuarios.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>[[#{usuario.nombre}]]</th>
+                                            <th>[[#{usuario.apellidos}]]</th>
+                                            <th>[[#{usuario.correo}]]</th>
+                                            <th>[[#{usuario.telefono}]]</th>
+                                            <th>[[#{usuario.rol}]]</th>
+                                            <th>[[#{usuario.estado}]]</th>
+                                            <th sec:authorize="hasRole('ADMIN')"></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr th:each="u : ${usuarios}">
+                                            <td>[[${u.idUsuario}]]</td>
+                                            <td>[[${u.nombre}]]</td>
+                                            <td>[[${u.apellidos}]]</td>
+                                            <td>[[${u.correo}]]</td>
+                                            <td>[[${u.telefono}]]</td>
+                                            <td>[[${u.rol.nombreRol}]]</td>
+                                            <td>[[${u.estado}]]</td>
+
+                                            <td sec:authorize="hasRole('ADMIN')">
+                                                <button type="button" class="btn btn-danger"
+                                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                        th:data-bs-id="${u.idUsuario}"
+                                                        th:data-bs-descripcion="${u.nombre}">
+                                                    <i class="fa-solid fa-user-slash"></i> [[#{usuario.cambiarEstado}]]
+                                                </button>
+
+                                                <a th:href="@{/usuario/modificar/}+${u.idUsuario}"
+                                                   class="btn btn-warning">
+                                                    <i class="fas fa-pencil-alt"></i> [[#{accion.actualizar}]]
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="text-center p-2" th:if="${usuarios == null or usuarios.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card text-center bg-primary text-white mb-3">
+                        <div class="card-body">
+                            <h3>[[#{usuario.total}]]</h3>
+                            <h4 class="fs-2">
+                                <i class="fa-solid fa-users"></i> [[${totalUsuarios}]]
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para editar usuario -->
+        <section th:fragment="editar">
+            <div class="row">
+                <div class="col-md-2"></div>
+
+                <div class="col-md-8">
+                    <form method="POST" th:action="@{/usuario/guardar}"
+                          th:object="${usuario}" class="was-validated">
+
+                        <input type="hidden" name="idUsuario" th:field="*{idUsuario}"/>
+
+                        <div class="row py-4 mb-4 bg-light">
+                            <div class="col-md-4 d-grid">
+                                <a th:href="@{/usuario/listado}" class="btn btn-primary">
+                                    <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]
+                                </a>
+                            </div>
+
+                            <div class="col-md-4 d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check"></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>[[#{accion.actualizar}]]</h4>
+                                    </div>
+
+                                    <div class="card-body">
+
+                                        <div class="mb-3">
+                                            <label>[[#{usuario.nombre}]]</label>
+                                            <input type="text" class="form-control" name="nombre"
+                                                   th:field="*{nombre}" maxlength="50" required/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{usuario.apellidos}]]</label>
+                                            <input type="text" class="form-control" name="apellidos"
+                                                   th:field="*{apellidos}" maxlength="80" required/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{usuario.correo}]]</label>
+                                            <input type="email" class="form-control" name="correo"
+                                                   th:field="*{correo}" maxlength="100" required/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{usuario.password}]]</label>
+                                            <input type="password" class="form-control" name="password"
+                                                   maxlength="512"/>
+                                            <small class="form-text text-muted">
+                                                [[#{usuario.passwordInfo}]]
+                                            </small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{usuario.telefono}]]</label>
+                                            <input type="text" class="form-control" name="telefono"
+                                                   th:field="*{telefono}" maxlength="25"/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{usuario.rol}]]</label>
+                                            <select name="rol.idRol" th:field="*{rol.idRol}"
+                                                    class="form-select" required>
+                                                <option th:each="r : ${roles}" th:value="${r.idRol}">
+                                                    [[${r.nombreRol}]]
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{usuario.estado}]]</label>
+                                            <select name="estado" th:field="*{estado}" class="form-select" required>
+                                                <option value="Activo">Activo</option>
+                                                <option value="Inactivo">Inactivo</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para confirmar cambio de estado -->
+        <section th:fragment="confirmarEliminar">
+            <div class="modal fade"
+                 id="confirmModal"
+                 tabindex="-1"
+                 aria-labelledby="modalLabel"
+                 aria-hidden="true">
+
+                <div class="modal-dialog modal-dialog-centered custom-modal-animation">
+                    <div class="modal-content animate-slide-up">
+
+                        <form th:action="@{/usuario/eliminar}" th:object="${usuario}" method="post">
+                            <input type="hidden" name="idUsuario" id="modalId"/>
+
+                            <div class="modal-header bg-warning text-white">
+                                <h5 class="modal-title" id="modalLabel">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> [[#{accion.confirmar}]]
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>[[#{usuario.confirmarEstado}]] <span id="modalDescripcion"></span>?</p>
+                                <h6>[[#{accion.confirmar.texto2}]]</h6>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fa-solid fa-user-slash"></i> [[#{usuario.cambiarEstado}]]
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head th:replace="~{general/fragmentos :: head}"/>
+
+    <body>
+
+        <!-- Fragmento para agregar envío -->
+        <section th:fragment="agregar">
+            <div class="row py-4 mb-2 bg-light">
+                <div class="col-md-1"></div>
+                <div class="col-md-3" sec:authorize="hasRole('ADMIN')">
+                    <button type="button" class="btn btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#agregarEnvioModal">
+                        <i class="fa-solid fa-plus"></i> [[#{envio.agregar}]]
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal fade" id="agregarEnvioModal" tabindex="-1"
+                 aria-labelledby="agregarEnvioLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-info text-white">
+                            <h1 class="modal-title fs-5" id="agregarEnvioLabel">
+                                <i class="fa-solid fa-truck-fast"></i> [[#{envio.agregar}]]
+                            </h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+
+                        <form th:action="@{/envio/guardar}" th:object="${envio}"
+                              class="was-validated" method="post">
+
+                            <div class="modal-body">
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.cliente}]]</label>
+                                        <select name="cliente.idCliente" class="form-select" required>
+                                            <option th:each="c : ${clientes}" th:value="${c.idCliente}">
+                                                [[${c.usuario.nombre}]] [[${c.usuario.apellidos}]]
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.paquete}]]</label>
+                                        <select name="paquete.idPaquete" class="form-select" required>
+                                            <option th:each="p : ${paquetes}" th:value="${p.idPaquete}">
+                                                [[${p.descripcion}]]
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.direccionOrigen}]]</label>
+                                        <select name="direccionOrigen.idDireccion" class="form-select" required>
+                                            <option th:each="d : ${direcciones}" th:value="${d.idDireccion}">
+                                                [[${d.provincia}]], [[${d.canton}]], [[${d.distrito}]]
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.direccionDestino}]]</label>
+                                        <select name="direccionDestino.idDireccion" class="form-select" required>
+                                            <option th:each="d : ${direcciones}" th:value="${d.idDireccion}">
+                                                [[${d.provincia}]], [[${d.canton}]], [[${d.distrito}]]
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.repartidor}]]</label>
+                                        <select name="repartidor.idRepartidor" class="form-select">
+                                            <option value="">Sin asignar</option>
+                                            <option th:each="r : ${repartidores}" th:value="${r.idRepartidor}">
+                                                [[${r.usuario.nombre}]] [[${r.usuario.apellidos}]] - [[${r.vehiculo}]]
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.ruta}]]</label>
+                                        <select name="ruta.idRuta" class="form-select">
+                                            <option value="">Sin ruta</option>
+                                            <option th:each="rt : ${rutas}" th:value="${rt.idRuta}">
+                                                [[${rt.nombreRuta}]] - [[${rt.zona}]]
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{envio.codigoSeguimiento}]]</label>
+                                    <input type="text" name="codigoSeguimiento" class="form-control"
+                                           maxlength="30"/>
+                                    <small class="form-text text-muted">
+                                        Si se deja vacío, el sistema genera el código automáticamente.
+                                    </small>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.nombreDestinatario}]]</label>
+                                        <input type="text" name="nombreDestinatario" class="form-control"
+                                               maxlength="100"/>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.telefonoDestinatario}]]</label>
+                                        <input type="text" name="telefonoDestinatario" class="form-control"
+                                               maxlength="25"/>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{envio.fechaRecoleccionEstimada}]]</label>
+                                    <input type="datetime-local" name="fechaRecoleccionEstimada"
+                                           class="form-control"/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{envio.observacion}]]</label>
+                                    <textarea name="observacion" class="form-control"
+                                              maxlength="255" rows="3"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{envio.estado}]]</label>
+                                    <select name="estado" class="form-select">
+                                        <option value="Activo">Activo</option>
+                                        <option value="Inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk"></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para filtros -->
+        <section th:fragment="filtros" class="p-3">
+            <div class="row p-3">
+                <div class="col-md-12">
+                    <div class="card p-2">
+                        <div class="card-header">
+                            <h5><i class="fa-solid fa-filter"></i> [[#{envio.filtros}]]</h5>
+                        </div>
+
+                        <div class="card-body">
+                            <form th:action="@{/envio/filtrar}" method="get">
+                                <div class="row">
+
+                                    <div class="col-md-5 mb-3">
+                                        <label>[[#{envio.cliente}]]</label>
+                                        <select name="idCliente" class="form-select">
+                                            <option value="">Todos</option>
+                                            <option th:each="c : ${clientes}"
+                                                    th:value="${c.idCliente}"
+                                                    th:selected="${idClienteSeleccionado != null and idClienteSeleccionado == c.idCliente}">
+                                                [[${c.usuario.nombre}]] [[${c.usuario.apellidos}]]
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-5 mb-3">
+                                        <label>[[#{envio.estadoEnvio}]]</label>
+                                        <select name="idEstado" class="form-select">
+                                            <option value="">Todos</option>
+                                            <option th:each="e : ${estadosEnvio}"
+                                                    th:value="${e.idEstado}"
+                                                    th:selected="${idEstadoSeleccionado != null and idEstadoSeleccionado == e.idEstado}">
+                                                [[${e.nombreEstado}]]
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-2 mb-3 d-grid align-items-end">
+                                        <button type="submit" class="btn btn-success mt-4">
+                                            <i class="fa-solid fa-magnifying-glass"></i> [[#{envio.filtrar}]]
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </form>
+
+                            <a th:href="@{/envio/listado}" class="btn btn-secondary">
+                                <i class="fa-solid fa-rotate-left"></i> [[#{envio.limpiarFiltros}]]
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para listado de envíos -->
+        <section th:fragment="listado" class="p-3">
+            <div class="row p-3">
+                <div class="col-md-10">
+                    <div class="card p-2">
+                        <div class="card-header">
+                            <h4>[[#{envio.listado}]]</h4>
+                        </div>
+
+                        <div class="card-body">
+                            <div th:if="${envios != null and !envios.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>[[#{envio.codigoSeguimiento}]]</th>
+                                            <th>[[#{envio.cliente}]]</th>
+                                            <th>[[#{envio.paquete}]]</th>
+                                            <th>[[#{envio.destinatario}]]</th>
+                                            <th>[[#{envio.estadoEnvio}]]</th>
+                                            <th>[[#{envio.estado}]]</th>
+                                            <th sec:authorize="hasRole('ADMIN')"></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr th:each="e : ${envios}">
+                                            <td>[[${e.idEnvio}]]</td>
+                                            <td>[[${e.codigoSeguimiento}]]</td>
+                                            <td>[[${e.cliente.usuario.nombre}]] [[${e.cliente.usuario.apellidos}]]</td>
+                                            <td>[[${e.paquete.descripcion}]]</td>
+                                            <td>[[${e.nombreDestinatario}]]</td>
+                                            <td>[[${e.estadoEnvio.nombreEstado}]]</td>
+                                            <td>[[${e.estado}]]</td>
+
+                                            <td sec:authorize="hasRole('ADMIN')">
+                                                <button type="button" class="btn btn-danger"
+                                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                        th:data-bs-id="${e.idEnvio}"
+                                                        th:data-bs-descripcion="${e.codigoSeguimiento}">
+                                                    <i class="fa-solid fa-trash"></i> [[#{accion.eliminar}]]
+                                                </button>
+
+                                                <a th:href="@{/envio/modificar/}+${e.idEnvio}"
+                                                   class="btn btn-warning">
+                                                    <i class="fas fa-pencil-alt"></i> [[#{accion.actualizar}]]
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="text-center p-2" th:if="${envios == null or envios.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="card text-center bg-primary text-white mb-3">
+                        <div class="card-body">
+                            <h3>[[#{envio.total}]]</h3>
+                            <h4 class="fs-2">
+                                <i class="fa-solid fa-truck-fast"></i> [[${totalEnvios}]]
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para editar envío -->
+        <section th:fragment="editar">
+            <div class="row">
+                <div class="col-md-1"></div>
+
+                <div class="col-md-10">
+                    <form method="POST" th:action="@{/envio/guardar}"
+                          th:object="${envio}" class="was-validated">
+
+                        <input type="hidden" name="idEnvio" th:field="*{idEnvio}"/>
+
+                        <div class="row py-4 mb-4 bg-light">
+                            <div class="col-md-4 d-grid">
+                                <a th:href="@{/envio/listado}" class="btn btn-primary">
+                                    <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]
+                                </a>
+                            </div>
+
+                            <div class="col-md-4 d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check"></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>[[#{accion.actualizar}]]</h4>
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.cliente}]]</label>
+                                        <select name="cliente.idCliente" th:field="*{cliente.idCliente}"
+                                                class="form-select" required>
+                                            <option th:each="c : ${clientes}" th:value="${c.idCliente}">
+                                                [[${c.usuario.nombre}]] [[${c.usuario.apellidos}]]
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.paquete}]]</label>
+                                        <select name="paquete.idPaquete" th:field="*{paquete.idPaquete}"
+                                                class="form-select" required>
+                                            <option th:each="p : ${paquetes}" th:value="${p.idPaquete}">
+                                                [[${p.descripcion}]]
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.direccionOrigen}]]</label>
+                                        <select name="direccionOrigen.idDireccion" th:field="*{direccionOrigen.idDireccion}"
+                                                class="form-select" required>
+                                            <option th:each="d : ${direcciones}" th:value="${d.idDireccion}">
+                                                [[${d.provincia}]], [[${d.canton}]], [[${d.distrito}]]
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.direccionDestino}]]</label>
+                                        <select name="direccionDestino.idDireccion" th:field="*{direccionDestino.idDireccion}"
+                                                class="form-select" required>
+                                            <option th:each="d : ${direcciones}" th:value="${d.idDireccion}">
+                                                [[${d.provincia}]], [[${d.canton}]], [[${d.distrito}]]
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.repartidor}]]</label>
+                                        <select name="repartidor.idRepartidor" th:field="*{repartidor.idRepartidor}"
+                                                class="form-select">
+                                            <option value="">Sin asignar</option>
+                                            <option th:each="r : ${repartidores}" th:value="${r.idRepartidor}">
+                                                [[${r.usuario.nombre}]] [[${r.usuario.apellidos}]] - [[${r.vehiculo}]]
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.ruta}]]</label>
+                                        <select name="ruta.idRuta" th:field="*{ruta.idRuta}"
+                                                class="form-select">
+                                            <option value="">Sin ruta</option>
+                                            <option th:each="rt : ${rutas}" th:value="${rt.idRuta}">
+                                                [[${rt.nombreRuta}]] - [[${rt.zona}]]
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{envio.estadoEnvio}]]</label>
+                                    <select name="estadoEnvio.idEstado" th:field="*{estadoEnvio.idEstado}"
+                                            class="form-select" required>
+                                        <option th:each="est : ${estadosEnvio}" th:value="${est.idEstado}">
+                                            [[${est.nombreEstado}]]
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{envio.codigoSeguimiento}]]</label>
+                                    <input type="text" class="form-control" name="codigoSeguimiento"
+                                           th:field="*{codigoSeguimiento}" maxlength="30" required/>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.nombreDestinatario}]]</label>
+                                        <input type="text" class="form-control" name="nombreDestinatario"
+                                               th:field="*{nombreDestinatario}" maxlength="100"/>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <label>[[#{envio.telefonoDestinatario}]]</label>
+                                        <input type="text" class="form-control" name="telefonoDestinatario"
+                                               th:field="*{telefonoDestinatario}" maxlength="25"/>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{envio.fechaRecoleccionEstimada}]]</label>
+                                    <input type="datetime-local" class="form-control"
+                                           name="fechaRecoleccionEstimada"
+                                           th:field="*{fechaRecoleccionEstimada}"/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{envio.observacion}]]</label>
+                                    <textarea class="form-control" name="observacion"
+                                              th:field="*{observacion}"
+                                              maxlength="255" rows="3"></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{envio.estado}]]</label>
+                                    <select name="estado" th:field="*{estado}" class="form-select">
+                                        <option value="Activo">Activo</option>
+                                        <option value="Inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para confirmar eliminación -->
+        <section th:fragment="confirmarEliminar">
+            <div class="modal fade"
+                 id="confirmModal"
+                 tabindex="-1"
+                 aria-labelledby="modalLabel"
+                 aria-hidden="true">
+
+                <div class="modal-dialog modal-dialog-centered custom-modal-animation">
+                    <div class="modal-content animate-slide-up">
+
+                        <form th:action="@{/envio/eliminar}" method="post">
+                            <input type="hidden" name="idEnvio" id="modalId"/>
+
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="modalLabel">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> [[#{accion.confirmar}]]
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>[[#{accion.confirmar.texto1}]] <span id="modalDescripcion"></span>?</p>
+                                <h6>[[#{accion.confirmar.texto2}]]</h6>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fa-solid fa-trash"></i> [[#{accion.eliminar}]]
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </body>
+</html>

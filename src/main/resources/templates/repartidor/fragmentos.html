@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head th:replace="~{general/fragmentos :: head}"/>
+
+    <body>
+
+        <!-- Fragmento para agregar repartidor -->
+        <section th:fragment="agregar">
+            <div class="row py-4 mb-2 bg-light">
+                <div class="col-md-1"></div>
+                <div class="col-md-3" sec:authorize="hasRole('ADMIN')">
+                    <button type="button" class="btn btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#agregarRepartidorModal">
+                        <i class="fa-solid fa-plus"></i> [[#{repartidor.agregar}]]
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal fade" id="agregarRepartidorModal" tabindex="-1"
+                 aria-labelledby="agregarRepartidorLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-info text-white">
+                            <h1 class="modal-title fs-5" id="agregarRepartidorLabel">
+                                <i class="fa-solid fa-truck-fast"></i> [[#{repartidor.agregar}]]
+                            </h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+
+                        <form th:action="@{/repartidor/guardar}" th:object="${repartidor}"
+                              class="was-validated" method="post">
+                            <div class="modal-body">
+
+                                <div class="mb-3">
+                                    <label>[[#{repartidor.usuario}]]</label>
+                                    <select name="usuario.idUsuario" class="form-select" required>
+                                        <option th:each="u : ${usuarios}" th:value="${u.idUsuario}">
+                                            [[${u.nombre}]] [[${u.apellidos}]]
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{repartidor.vehiculo}]]</label>
+                                    <input type="text" name="vehiculo" class="form-control"
+                                           maxlength="100"/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{repartidor.estado}]]</label>
+                                    <select name="estado" class="form-select" required>
+                                        <option value="Disponible">Disponible</option>
+                                        <option value="No disponible">No disponible</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk"></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para listado de repartidores -->
+        <section th:fragment="listado" class="p-3">
+            <div class="row p-3">
+                <div class="col-md-10">
+                    <div class="card p-2">
+                        <div class="card-header">
+                            <h4>[[#{repartidor.listado}]]</h4>
+                        </div>
+
+                        <div class="card-body">
+                            <div th:if="${repartidores != null and !repartidores.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>[[#{repartidor.usuario}]]</th>
+                                            <th>[[#{repartidor.vehiculo}]]</th>
+                                            <th>[[#{repartidor.estado}]]</th>
+                                            <th>[[#{repartidor.foto}]]</th>
+                                            <th>[[#{repartidor.licencia}]]</th>
+                                            <th sec:authorize="hasRole('ADMIN')"></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr th:each="r : ${repartidores}">
+                                            <td>[[${r.idRepartidor}]]</td>
+                                            <td>[[${r.usuario.nombre}]] [[${r.usuario.apellidos}]]</td>
+                                            <td>[[${r.vehiculo}]]</td>
+                                            <td>[[${r.estado}]]</td>
+
+                                            <td>
+                                                <img th:if="${r.fotoUrl != null and !r.fotoUrl.isBlank()}"
+                                                     th:src="${r.fotoUrl}"
+                                                     width="70"
+                                                     height="70"
+                                                     class="rounded"
+                                                     alt="Foto repartidor"/>
+
+                                                <span th:if="${r.fotoUrl == null or r.fotoUrl.isBlank()}">
+                                                    [[#{repartidor.sinFoto}]]
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <a th:if="${r.licenciaUrl != null and !r.licenciaUrl.isBlank()}"
+                                                   th:href="${r.licenciaUrl}"
+                                                   target="_blank"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    [[#{repartidor.verLicencia}]]
+                                                </a>
+
+                                                <span th:if="${r.licenciaUrl == null or r.licenciaUrl.isBlank()}">
+                                                    [[#{repartidor.sinLicencia}]]
+                                                </span>
+                                            </td>
+
+                                            <td sec:authorize="hasRole('ADMIN')">
+
+                                                <button type="button" class="btn btn-primary mb-1"
+                                                        data-bs-toggle="modal"
+                                                        th:data-bs-target="'#modalImagenes' + ${r.idRepartidor}">
+                                                    <i class="fa-solid fa-image"></i> [[#{repartidor.subirImagenes}]]
+                                                </button>
+
+                                                <div class="modal fade"
+                                                     th:id="'modalImagenes' + ${r.idRepartidor}"
+                                                     tabindex="-1"
+                                                     aria-hidden="true">
+
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+
+                                                            <div class="modal-header bg-info text-white">
+                                                                <h5 class="modal-title">
+                                                                    <i class="fa-solid fa-image"></i> [[#{repartidor.subirImagenes}]]
+                                                                </h5>
+                                                                <button type="button"
+                                                                        class="btn-close"
+                                                                        data-bs-dismiss="modal"
+                                                                        aria-label="Close"></button>
+                                                            </div>
+
+                                                            <form th:action="@{/repartidor/guardarImagenes}"
+                                                                  method="post"
+                                                                  enctype="multipart/form-data">
+
+                                                                <div class="modal-body">
+                                                                    <input type="hidden"
+                                                                           name="idRepartidor"
+                                                                           th:value="${r.idRepartidor}"/>
+
+                                                                    <div class="mb-3">
+                                                                        <label>[[#{repartidor.foto}]]</label>
+                                                                        <input type="file"
+                                                                               name="fotoFile"
+                                                                               class="form-control"
+                                                                               accept="image/*"/>
+                                                                    </div>
+
+                                                                    <div class="mb-3">
+                                                                        <label>[[#{repartidor.licencia}]]</label>
+                                                                        <input type="file"
+                                                                               name="licenciaFile"
+                                                                               class="form-control"
+                                                                               accept="image/*"/>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button"
+                                                                            class="btn btn-secondary"
+                                                                            data-bs-dismiss="modal">
+                                                                        <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                                                    </button>
+
+                                                                    <button type="submit"
+                                                                            class="btn btn-primary">
+                                                                        <i class="fa-solid fa-floppy-disk"></i> [[#{accion.guardar}]]
+                                                                    </button>
+                                                                </div>
+
+                                                            </form>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <button type="button" class="btn btn-danger mb-1"
+                                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                        th:data-bs-id="${r.idRepartidor}"
+                                                        th:data-bs-descripcion="${r.usuario.nombre + ' ' + r.usuario.apellidos}">
+                                                    <i class="fa-solid fa-trash"></i> [[#{accion.eliminar}]]
+                                                </button>
+
+                                                <a th:href="@{/repartidor/modificar/}+${r.idRepartidor}"
+                                                   class="btn btn-warning mb-1">
+                                                    <i class="fas fa-pencil-alt"></i> [[#{accion.actualizar}]]
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="text-center p-2" th:if="${repartidores == null or repartidores.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="card text-center bg-primary text-white mb-3">
+                        <div class="card-body">
+                            <h3>[[#{repartidor.total}]]</h3>
+                            <h4 class="fs-2">
+                                <i class="fa-solid fa-truck-fast"></i> [[${totalRepartidores}]]
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para editar repartidor -->
+        <section th:fragment="editar">
+            <div class="row">
+                <div class="col-md-2"></div>
+
+                <div class="col-md-8">
+                    <form method="POST" th:action="@{/repartidor/guardar}"
+                          th:object="${repartidor}" class="was-validated">
+
+                        <input type="hidden" name="idRepartidor" th:field="*{idRepartidor}"/>
+
+                        <div class="row py-4 mb-4 bg-light">
+                            <div class="col-md-4 d-grid">
+                                <a th:href="@{/repartidor/listado}" class="btn btn-primary">
+                                    <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]
+                                </a>
+                            </div>
+
+                            <div class="col-md-4 d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check"></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>[[#{accion.actualizar}]]</h4>
+                                    </div>
+
+                                    <div class="card-body">
+
+                                        <div class="mb-3">
+                                            <label>[[#{repartidor.usuario}]]</label>
+                                            <select name="usuario.idUsuario" th:field="*{usuario.idUsuario}"
+                                                    class="form-select" required>
+                                                <option th:each="u : ${usuarios}" th:value="${u.idUsuario}">
+                                                    [[${u.nombre}]] [[${u.apellidos}]]
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{repartidor.vehiculo}]]</label>
+                                            <input type="text" class="form-control" name="vehiculo"
+                                                   th:field="*{vehiculo}" maxlength="100"/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{repartidor.estado}]]</label>
+                                            <select name="estado" th:field="*{estado}" class="form-select" required>
+                                                <option value="Disponible">Disponible</option>
+                                                <option value="No disponible">No disponible</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{repartidor.foto}]]</label>
+                                            <div>
+                                                <img th:if="${repartidor.fotoUrl != null and !repartidor.fotoUrl.isBlank()}"
+                                                     th:src="${repartidor.fotoUrl}"
+                                                     width="100"
+                                                     height="100"
+                                                     class="rounded"
+                                                     alt="Foto repartidor"/>
+                                                <span th:if="${repartidor.fotoUrl == null or repartidor.fotoUrl.isBlank()}">
+                                                    [[#{repartidor.sinFoto}]]
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{repartidor.licencia}]]</label>
+                                            <div>
+                                                <a th:if="${repartidor.licenciaUrl != null and !repartidor.licenciaUrl.isBlank()}"
+                                                   th:href="${repartidor.licenciaUrl}"
+                                                   target="_blank"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    [[#{repartidor.verLicencia}]]
+                                                </a>
+                                                <span th:if="${repartidor.licenciaUrl == null or repartidor.licenciaUrl.isBlank()}">
+                                                    [[#{repartidor.sinLicencia}]]
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para confirmar eliminación -->
+        <section th:fragment="confirmarEliminar">
+            <div class="modal fade"
+                 id="confirmModal"
+                 tabindex="-1"
+                 aria-labelledby="modalLabel"
+                 aria-hidden="true">
+
+                <div class="modal-dialog modal-dialog-centered custom-modal-animation">
+                    <div class="modal-content animate-slide-up">
+
+                        <form th:action="@{/repartidor/eliminar}" th:object="${repartidor}" method="post">
+                            <input type="hidden" name="idRepartidor" id="modalId"/>
+
+                            <div class="modal-header bg-warning text-white">
+                                <h5 class="modal-title" id="modalLabel">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> [[#{accion.confirmar}]]
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>[[#{accion.confirmar.texto1}]] <span id="modalDescripcion"></span>?</p>
+                                <h6>[[#{accion.confirmar.texto2}]]</h6>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fa-solid fa-trash"></i> [[#{accion.eliminar}]]
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </body>
+</html>

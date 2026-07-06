@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head th:replace="~{general/fragmentos :: head}"/>
+
+    <body>
+
+        <!-- Fragmento para agregar paquete -->
+        <section th:fragment="agregar">
+            <div class="row py-4 mb-2 bg-light">
+                <div class="col-md-1"></div>
+                <div class="col-md-3" sec:authorize="hasRole('ADMIN')">
+                    <button type="button" class="btn btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#agregarPaqueteModal">
+                        <i class="fa-solid fa-plus"></i> [[#{paquete.agregar}]]
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal fade" id="agregarPaqueteModal" tabindex="-1"
+                 aria-labelledby="agregarPaqueteLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-info text-white">
+                            <h1 class="modal-title fs-5" id="agregarPaqueteLabel">
+                                <i class="fa-solid fa-box"></i> [[#{paquete.agregar}]]
+                            </h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+
+                        <form th:action="@{/paquete/guardar}" th:object="${paquete}"
+                              class="was-validated" method="post">
+                            <div class="modal-body">
+
+                                <div class="mb-3">
+                                    <label>[[#{paquete.descripcion}]]</label>
+                                    <input type="text" name="descripcion" class="form-control"
+                                           maxlength="150" required/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{paquete.peso}]]</label>
+                                    <input type="number" name="peso" class="form-control"
+                                           step="0.01" min="0.01" required/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{paquete.dimensiones}]]</label>
+                                    <input type="text" name="dimensiones" class="form-control"
+                                           maxlength="100"/>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk"></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para listado de paquetes -->
+        <section th:fragment="listado" class="p-3">
+            <div class="row p-3">
+                <div class="col-md-9">
+                    <div class="card p-2">
+                        <div class="card-header">
+                            <h4>[[#{paquete.listado}]]</h4>
+                        </div>
+
+                        <div class="card-body">
+                            <div th:if="${paquetes != null and !paquetes.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>[[#{paquete.descripcion}]]</th>
+                                            <th>[[#{paquete.peso}]]</th>
+                                            <th>[[#{paquete.dimensiones}]]</th>
+                                            <th sec:authorize="hasRole('ADMIN')"></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr th:each="p : ${paquetes}">
+                                            <td>[[${p.idPaquete}]]</td>
+                                            <td>[[${p.descripcion}]]</td>
+                                            <td class="text-end">[[${p.peso}]] kg</td>
+                                            <td>[[${p.dimensiones}]]</td>
+
+                                            <td sec:authorize="hasRole('ADMIN')">
+                                                <button type="button" class="btn btn-danger"
+                                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                        th:data-bs-id="${p.idPaquete}"
+                                                        th:data-bs-descripcion="${p.descripcion}">
+                                                    <i class="fa-solid fa-trash"></i> [[#{accion.eliminar}]]
+                                                </button>
+
+                                                <a th:href="@{/paquete/modificar/}+${p.idPaquete}"
+                                                   class="btn btn-warning">
+                                                    <i class="fas fa-pencil-alt"></i> [[#{accion.actualizar}]]
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="text-center p-2" th:if="${paquetes == null or paquetes.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card text-center bg-primary text-white mb-3">
+                        <div class="card-body">
+                            <h3>[[#{paquete.total}]]</h3>
+                            <h4 class="fs-2">
+                                <i class="fa-solid fa-box"></i> [[${totalPaquetes}]]
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para editar paquete -->
+        <section th:fragment="editar">
+            <div class="row">
+                <div class="col-md-2"></div>
+
+                <div class="col-md-8">
+                    <form method="POST" th:action="@{/paquete/guardar}"
+                          th:object="${paquete}" class="was-validated">
+
+                        <input type="hidden" name="idPaquete" th:field="*{idPaquete}"/>
+
+                        <div class="row py-4 mb-4 bg-light">
+                            <div class="col-md-4 d-grid">
+                                <a th:href="@{/paquete/listado}" class="btn btn-primary">
+                                    <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]
+                                </a>
+                            </div>
+
+                            <div class="col-md-4 d-grid">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check"></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h4>[[#{accion.actualizar}]]</h4>
+                                    </div>
+
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label>[[#{paquete.descripcion}]]</label>
+                                            <input type="text" class="form-control" name="descripcion"
+                                                   th:field="*{descripcion}" maxlength="150" required/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{paquete.peso}]]</label>
+                                            <input type="number" class="form-control" name="peso"
+                                                   th:field="*{peso}" step="0.01" min="0.01" required/>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label>[[#{paquete.dimensiones}]]</label>
+                                            <input type="text" class="form-control" name="dimensiones"
+                                                   th:field="*{dimensiones}" maxlength="100"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento para confirmar eliminación -->
+        <section th:fragment="confirmarEliminar">
+            <div class="modal fade"
+                 id="confirmModal"
+                 tabindex="-1"
+                 aria-labelledby="modalLabel"
+                 aria-hidden="true">
+
+                <div class="modal-dialog modal-dialog-centered custom-modal-animation">
+                    <div class="modal-content animate-slide-up">
+
+                        <form th:action="@{/paquete/eliminar}" th:object="${paquete}" method="post">
+                            <input type="hidden" name="idPaquete" id="modalId"/>
+
+                            <div class="modal-header bg-warning text-white">
+                                <h5 class="modal-title" id="modalLabel">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> [[#{accion.confirmar}]]
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>[[#{accion.confirmar.texto1}]] <span id="modalDescripcion"></span>?</p>
+                                <h6>[[#{accion.confirmar.texto2}]]</h6>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fa-solid fa-trash"></i> [[#{accion.eliminar}]]
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </body>
+</html>

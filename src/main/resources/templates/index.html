@@ -1,12 +1,151 @@
 <!DOCTYPE html>
-<!-- Mi primer Proyecto-->
-<html>
-    <head>
-        <title>GestionEnvios</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head th:replace="~{general/fragmentos :: head}"/>
+
     <body>
-        <div>mi primer proyecto</div>
+        <header th:replace="~{general/fragmentos :: header}"/>
+
+        <section class="container mt-5">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h2>Sistema Web de Gestión de Envíos y Recolección de Paquetes</h2>
+                    <p class="lead">
+                        Plataforma para administrar usuarios, roles, paquetes, clientes, direcciones y envíos del sistema.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-info text-white">
+                            <h4>Paquetes</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-box fa-4x mb-3"></i>
+                            <p>Gestión de paquetes registrados en el sistema.</p>
+                            <a th:href="@{/paquete/listado}" class="btn btn-dark">
+                                Ver paquetes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-info text-white">
+                            <h4>Usuarios</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-users fa-4x mb-3"></i>
+                            <p>Administración de usuarios y roles del sistema.</p>
+                            <a th:href="@{/usuario/listado}" class="btn btn-dark">
+                                Ver usuarios
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mt-4">
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-info text-white">
+                            <h4>Clientes</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-user-check fa-4x mb-3"></i>
+                            <p>Gestión de clientes registrados en el sistema.</p>
+                            <a th:href="@{/cliente/listado}" class="btn btn-dark">
+                                Ver clientes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-info text-white">
+                            <h4>Direcciones</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-location-dot fa-4x mb-3"></i>
+                            <p>Gestión de direcciones registradas en el sistema.</p>
+                            <a th:href="@{/direccion/listado}" class="btn btn-dark">
+                                Ver direcciones
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="row mt-4">
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-info text-white">
+                            <h4>Repartidores</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-truck-fast fa-4x mb-3"></i>
+                            <p>Gestión de repartidores registrados en el sistema.</p>
+                            <a th:href="@{/repartidor/listado}" class="btn btn-dark">
+                                Ver repartidores
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-info text-white">
+                            <h4>Estados de Envío</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-flag fa-4x mb-3"></i>
+                            <p>Catálogo de estados disponibles para los envíos.</p>
+                            <a th:href="@{/estado-envio/listado}" class="btn btn-dark">
+                                Ver estados de envío
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <div class="row mt-4">
+
+                <div class="col-md-3"></div>
+
+                <div class="col-md-6">
+                    <div class="card text-center">
+                        <div class="card-header bg-info text-white">
+                            <h4>Envíos</h4>
+                        </div>
+                        <div class="card-body">
+                            <i class="fa-solid fa-truck-fast fa-4x mb-3"></i>
+                            <p>Gestión de envíos registrados en el sistema.</p>
+                            <a th:href="@{/envio/listado}" class="btn btn-dark">
+                                Ver envíos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3"></div>
+
+            </div>
+            
+            
+        </section>
+
+        <footer th:replace="~{general/fragmentos :: footer}"/>
     </body>
 </html>
