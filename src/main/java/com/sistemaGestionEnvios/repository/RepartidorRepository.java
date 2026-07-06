@@ -8,5 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RepartidorRepository extends JpaRepository<Repartidor, Integer> {
 
-    public List<Repartidor> findByEstado(String estado);
+     public List<Repartidor> findByEstado(String estado);
 }

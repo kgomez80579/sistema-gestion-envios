@@ -39,6 +39,11 @@ public class UsuarioService {
     public Usuario getUsuarioPorEmail(String email) {
         return usuarioRepository.findByCorreo(email);
     }
+    
+    @Transactional(readOnly = true)
+    public List<Usuario> getUsuariosPorRol(String nombreRol) {
+        return usuarioRepository.findByRol_NombreRol(nombreRol);
+    }
 
     @Transactional
     public void save(Usuario usuario) {

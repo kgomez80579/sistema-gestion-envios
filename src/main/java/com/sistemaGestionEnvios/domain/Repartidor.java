@@ -1,6 +1,7 @@
 package com.sistemaGestionEnvios.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -36,10 +37,5 @@ public class Repartidor implements Serializable {
     @Column(name = "fecha_modificacion", insertable = false, updatable = false)
     private LocalDateTime fechaModificacion;
 
-    @PrePersist
-    public void prePersist() {
-        if (estado == null || estado.isBlank()) {
-            estado = "Disponible";
-        }
-    }
+    
 }
