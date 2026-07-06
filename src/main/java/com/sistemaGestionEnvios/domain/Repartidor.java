@@ -30,6 +30,12 @@ public class Repartidor implements Serializable {
     @Column(length = 30)
     @Size(max = 30, message = "El estado no puede tener más de 30 caracteres.")
     private String estado;
+    
+    @Column(name = "foto_url", length = 500)
+    private String fotoUrl;
+
+    @Column(name = "licencia_url", length = 500)
+    private String licenciaUrl;
 
     @Column(name = "fecha_creacion", insertable = false, updatable = false)
     private LocalDateTime fechaCreacion;
