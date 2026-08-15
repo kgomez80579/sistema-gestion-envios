@@ -1,5 +1,5 @@
 package com.sistemaGestionEnvios.controller;
- 
+
 import com.sistemaGestionEnvios.domain.Repartidor;
 import com.sistemaGestionEnvios.service.RepartidorService;
 import com.sistemaGestionEnvios.service.UsuarioService;
@@ -14,22 +14,25 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
- 
+
 @Controller
 @RequestMapping("/repartidor")
 public class RepartidorController {
- 
+
     private final RepartidorService repartidorService;
     private final UsuarioService usuarioService;
     private final MessageSource messageSource;
-    public RepartidorController(RepartidorService repartidorService, UsuarioService usuarioService,
+
+    public RepartidorController(RepartidorService repartidorService,
+            UsuarioService usuarioService,
             MessageSource messageSource) {
         this.repartidorService = repartidorService;
         this.usuarioService = usuarioService;
         this.messageSource = messageSource;
     }
- 
+
     @GetMapping("/listado")
     public String listado(Model model) {
         var repartidores = repartidorService.getRepartidores();
@@ -40,14 +43,26 @@ public class RepartidorController {
         model.addAttribute("repartidor", new Repartidor());
         return "/repartidor/listado";
     }
- 
+
     @PostMapping("/guardar")
-    public String guardar(@Valid Repartidor repartidor,
+    public String guardar(
+            @Valid Repartidor repartidor,
+            @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            @RequestParam(value = "licenciaFile", required = false) MultipartFile licenciaFile,
             RedirectAttributes redirectAttributes) {
         String titulo = "todoOk";
         String detalle = "mensaje.actualizado";
         try {
             repartidorService.save(repartidor);
+            if ((fotoFile != null && !fotoFile.isEmpty())
+                    || (licenciaFile != null && !licenciaFile.isEmpty())) {
+
+                repartidorService.guardarImagenes(
+                        repartidor.getIdRepartidor(),
+                        fotoFile,
+                        licenciaFile
+                );
+            }
         } catch (Exception e) {
             titulo = "error";
             detalle = "repartidor.error04";
@@ -58,10 +73,11 @@ public class RepartidorController {
         );
         return "redirect:/repartidor/listado";
     }
- 
+
     @PostMapping("/eliminar")
     public String eliminar(@RequestParam Integer idRepartidor,
             RedirectAttributes redirectAttributes) {
+
         String titulo = "todoOk";
         String detalle = "mensaje.eliminado";
         try {
@@ -82,20 +98,25 @@ public class RepartidorController {
         );
         return "redirect:/repartidor/listado";
     }
- 
+
     @GetMapping("/modificar/{idRepartidor}")
-    public String modificar(@PathVariable("idRepartidor") Integer idRepartidor,
+    public String modificar(
+            @PathVariable("idRepartidor") Integer idRepartidor,
             Model model,
             RedirectAttributes redirectAttributes) {
- 
-        Optional<Repartidor> repartidorOpt = repartidorService.getRepartidor(idRepartidor);
+        Optional<Repartidor> repartidorOpt =
+                repartidorService.getRepartidor(idRepartidor);
         if (repartidorOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute(
                     "error",
-                    messageSource.getMessage("repartidor.error01", null, Locale.getDefault())
+                    messageSource.getMessage(
+                            "repartidor.error01",
+                            null,
+                            Locale.getDefault())
             );
             return "redirect:/repartidor/listado";
         }
+        
         model.addAttribute("repartidor", repartidorOpt.get());
         var usuarios = usuarioService.getUsuariosPorRol("REPARTIDOR");
         model.addAttribute("usuarios", usuarios);

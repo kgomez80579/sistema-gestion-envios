@@ -48,18 +48,7 @@
                                     <input type="text" class="form-control"
                                            name="dimensiones" required="true"/>
                                 </div>
-                                <div class="mb-3">
-                                    <label for="estado">[[#{paquete.estado}]]</label>
-                                    <input type="text" class="form-control"
-                                           name="estado" required="true"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="activo">[[#{paquete.activo}]]</label>
-                                    <select class="form-select" name="activo" required="true">
-                                        <option value="true">Activo</option>
-                                        <option value="false">Inactivo</option>
-                                    </select>
-                                </div>
+                              
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary"
@@ -79,7 +68,9 @@
             <div class="row p-3">
                 <div class="col-md-9">
                     <div class="card p-2">
-                        <div class="card-header"><h4>[[#{paquete.listado}]]</h4></div>
+                        <div class="card-header">
+                            <h4>[[#{paquete.listado}]]</h4>
+                        </div>
                         <div class="card-body">
                             <div th:if="${paquetes != null and !paquetes.empty}">
                                 <table class="table table-striped table-hover">
@@ -89,9 +80,8 @@
                                             <th>[[#{paquete.descripcion}]]</th>
                                             <th>[[#{paquete.peso}]]</th>
                                             <th>[[#{paquete.dimensiones}]]</th>
-                                            <th>[[#{paquete.estado}]]</th>
-                                            <th>[[#{paquete.activo}]]</th>
-                                            <th sec:authorize="hasRole('ADMIN')"></th>
+                                            <th>[[#{paquete.fechaRegistro}]]</th>
+                                            <th sec:authorize="hasRole('ROLE_ADMIN')"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -100,12 +90,12 @@
                                             <td>[[${p.descripcion}]]</td>
                                             <td>[[${p.peso}]]</td>
                                             <td>[[${p.dimensiones}]]</td>
-                                            <td>[[${p.estado}]]</td>
-                                            <td>[[${p.activo ? 'Activo' : 'Inactivo'}]]</td>
-                                            <td sec:authorize="hasRole('ADMIN')">
+                                            <td>[[${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}]]</td>
+                                            <td sec:authorize="hasRole('ROLE_ADMIN')">
                                                 <div class="d-flex align-items-start">
                                                     <button type="button" class="btn btn-danger"
-                                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#confirmModal"
                                                             th:data-bs-id="${p.idPaquete}"
                                                             th:data-bs-descripcion="${p.descripcion}">
                                                         <i class="fa-solid fa-trash"></i> [[#{accion.eliminar}]]
@@ -118,18 +108,25 @@
                                             </td>
                                         </tr>
                                     </tbody>
-                                </table></div>
+                                </table>
+                            </div>
                             <div class="text-center p-2"
                                  th:if="${paquetes == null or paquetes.empty}">
-                                <span>[[#{lista.vacia}]]</span></div>
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <div class="col-md-3">
                     <div class="card text-center bg-success text-white mb-3">
-                        <div class="card-body"><h3>[[#{paquete.total}]]</h3>
-                            <h4 class="fs-2"><i class="fas fa-box"></i> [[${totalPaquetes}]]</h4>
-                        </div></div>
+                        <div class="card-body">
+                            <h3>[[#{paquete.total}]]</h3>
+                            <h4 class="fs-2">
+                                <i class="fas fa-box"></i> [[${totalPaquetes}]]
+                            </h4>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -172,19 +169,7 @@
                                             <input type="text" class="form-control"
                                                    name="dimensiones" th:field="*{dimensiones}" required="true">
                                         </div>
-                                        <div class="mb-3">
-                                            <label>[[#{paquete.estado}]]</label>
-                                            <input type="text" class="form-control"
-                                                   name="estado" th:field="*{estado}" required="true">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label>[[#{paquete.activo}]]</label>
-                                            <select class="form-select" name="activo"
-                                                    th:field="*{activo}" required="true">
-                                                <option value="true">Activo</option>
-                                                <option value="false">Inactivo</option>
-                                            </select>
-                                        </div>
+                                       
                                     </div>
                                 </div>
                             </div>
