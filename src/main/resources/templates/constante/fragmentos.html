@@ -7,7 +7,7 @@
 
     <body>
 
-        <!-- fragmento 1 para Agregar dirección en ventana modal -->
+        <!-- fragmento 1 para Agregar constante en ventana modal -->
         <section th:fragment="agregar">
             <!-- Button trigger modal -->
             <div class='row py-4 mb-2 bg-light'>
@@ -15,44 +15,32 @@
                 <div class='col-md-3'>
                     <button type="button" class="btn btn-primary"
                             sec:authorize="hasRole('ADMIN')"
-                            data-bs-toggle="modal" data-bs-target="#agregarDireccionModal">
-                        <i class="fa-solid fa-plus"></i> [[#{direccion.agregar}]]</button>
+                            data-bs-toggle="modal" data-bs-target="#agregarConstanteModal">
+                        <i class="fa-solid fa-plus"></i> [[#{constante.agregar}]]</button>
                 </div>
             </div>
             <!-- Modal -->
-            <div class="modal fade" id="agregarDireccionModal"  tabindex="-1" 
+            <div class="modal fade" id="agregarConstanteModal"  tabindex="-1" 
                  aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-md">
                     <div class="modal-content">
                         <div class="modal-header bg-info text-white">
                             <h1 class="modal-title fs-5" id="exampleModalLabel">
-                                <i class="fa-solid fa-location-dot"></i> [[#{direccion.agregar}]]</h1>
+                                <i class="fa-solid fa-layer-group"></i> [[#{constante.agregar}]]</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form th:action='@{/direccion/guardar}' th:object='${direccion}'
+                        <form th:action='@{/constante/guardar}' th:object='${constante}'
                               class='was-validated' method="post">
                             <div class="modal-body">
                                 <div class="mb-3">
-                                    <label for="provincia">[[#{direccion.provincia}]]</label>
+                                    <label for="atributo">[[#{constante.atributo}]]</label>
                                     <input type="text" class="form-control" 
-                                           name="provincia" required="true"/>
+                                           name="atributo" required="true"/>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="canton">[[#{direccion.canton}]]</label>
+                                    <label for="valor">[[#{constante.valor}]]</label>
                                     <input type="text" class="form-control" 
-                                           name="canton" required="true"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="distrito">[[#{direccion.distrito}]]</label>
-                                    <input type="text" class="form-control" 
-                                           name="distrito" required="true"/>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="direccionExacta">[[#{direccion.direccionExacta}]]</label>
-                                    <textarea class="form-control"
-                                              name="direccionExacta"
-                                              rows="3"
-                                              required="true"></textarea>
+                                           name="valor" required="true"/>
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -68,41 +56,37 @@
         </section>
 
 
-        <!-- fragmento 2 para el listado de direcciones -->
+        <!-- fragmento 2 para el listado de constantes -->
         <section th:fragment="listado" class="p-3">
             <div class="row p-3">
                 <div class="col-md-9">
                     <div class="card p-2">
-                        <div class="card-header"><h4>[[#{direccion.listado}]]</h4></div>
+                        <div class="card-header"><h4>[[#{constante.listado}]]</h4></div>
                         <div class="card-body">
-                            <div th:if="${direcciones != null and !direcciones.empty}">
+                            <div th:if="${constantes != null and !constantes.empty}">
                                 <table class="table table-striped table-hover">
                                     <thead class="table-dark">
                                         <tr>
                                             <th>#</th>
-                                            <th>[[#{direccion.provincia}]]</th>
-                                            <th>[[#{direccion.canton}]]</th>
-                                            <th>[[#{direccion.distrito}]]</th>
-                                            <th>[[#{direccion.direccionExacta}]]</th>
+                                            <th>[[#{constante.atributo}]]</th>
+                                            <th>[[#{constante.valor}]]</th>
                                             <th sec:authorize="hasRole('ADMIN')"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr th:each="d : ${direcciones}">
-                                            <td>[[${d.idDireccion}]]</td>
-                                            <td>[[${d.provincia}]]</td>
-                                            <td>[[${d.canton}]]</td>
-                                            <td>[[${d.distrito}]]</td>
-                                            <td>[[${d.direccionExacta}]]</td> 
+                                        <tr th:each="c : ${constantes}">
+                                            <td>[[${c.idConstante}]]</td>
+                                            <td >[[${c.atributo}]]</td>
+                                            <td>[[${c.valor}]]</td> 
                                             <td sec:authorize="hasRole('ADMIN')">
                                                 <div class="d-flex align-items-start">
                                                     <button type="button" class="btn btn-danger"
                                                             data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                            th:data-bs-id="${d.idDireccion}"
-                                                            th:data-bs-descripcion="${d.direccionExacta}">
+                                                            th:data-bs-id="${c.idConstante}"
+                                                            th:data-bs-descripcion="${c.atributo}">
                                                         <i class="fa-solid fa-trash"></i> [[#{accion.eliminar}]]
                                                     </button>
-                                                    <a th:href="@{/direccion/modificar/{id}(id=${d.idDireccion})}"
+                                                    <a th:href="@{/constante/modificar/{id}(id=${c.idConstante})}"
                                                        class="btn btn-warning">
                                                         <i class="fa-solid fa-pencil"></i> [[#{accion.actualizar}]]
                                                     </a>
@@ -111,32 +95,32 @@
                                         </tr>
                                     </tbody>
                                 </table></div>
-                            <div class="text-center p-2" th:if="${direcciones == null or direcciones.empty}">
+                            <div class="text-center p-2" th:if="${constantes == null or constantes.empty}">
                                 <span>[[#{lista.vacia}]]</span></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card text-center bg-success text-white mb-3">
-                        <div class="card-body"><h3>[[#{direccion.total}]]</h3>
-                            <h4 class="fs-2"><i class="fas fa-location-dot"></i> [[${totalDirecciones}]]</h4>
+                        <div class="card-body"><h3>[[#{constante.total}]]</h3>
+                            <h4 class="fs-2"><i class="fas fa-layer-group"></i> [[${totalConstantes}]]</h4>
                         </div></div>
                 </div>
             </div>
         </section>
 
 
-        <!-- 3 Fragmento que se utiliza en la página modifica.html -->
+        <!-- 3 Fragmento que se utiliza en la página modifca.html -->
         <section th:fragment="editar">
             <div class="row">
                 <div class="col-md-2"></div>
                 <div class="col-md-8">
-                    <form method="POST" th:action="@{/direccion/guardar}" 
-                          th:object="${direccion}" class="was-validated">
-                        <input type="hidden" name="idDireccion" th:field="*{idDireccion}"/>
+                    <form method="POST" th:action="@{/constante/guardar}" 
+                          th:object="${constante}" class="was-validated">
+                        <input type="hidden" name="idConstante" th:field="*{idConstante}"/>
                         <div class="row py-4 mb-4 bg-light">
                             <div class="col-md-4 d-grid">
-                                <a th:href="@{/direccion/listado}" class="btn btn-primary">
+                                <a th:href="@{/constante/listado}" class="btn btn-primary">
                                     <i class="fas fa-arrow-left"></i> [[#{accion.regresar}]]</a>
                             </div>                                
                             <div class="col-md-4 d-grid">
@@ -150,25 +134,12 @@
                                     <div class="card-header"><h4>[[#{accion.actualizar}]]</h4></div>
                                     <div class="card-body">
                                         <div class="mb-3">
-                                            <label>[[#{direccion.provincia}]]</label>
-                                            <input type="text" class="form-control" name="provincia"
-                                                   th:field="*{provincia}" required="true">
+                                            <label>[[#{constante.atributo}]]</label>
+                                            <input type="text" class="form-control" name="atributo" th:field="*{atributo}" required="true">
                                         </div>
                                         <div class="mb-3">
-                                            <label>[[#{direccion.canton}]]</label>
-                                            <input type="text" class="form-control" name="canton"
-                                                   th:field="*{canton}" required="true">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label>[[#{direccion.distrito}]]</label>
-                                            <input type="text" class="form-control" name="distrito"
-                                                   th:field="*{distrito}" required="true">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label>[[#{direccion.direccionExacta}]]</label>
-                                            <textarea class="form-control" name="direccionExacta"
-                                                      th:field="*{direccionExacta}"
-                                                      rows="3" required="true"></textarea>
+                                            <label>[[#{constante.valor}]]</label>
+                                            <input type="text" class="form-control" name="valor" th:field="*{valor}" required="true">
                                         </div>
                                     </div>
                                 </div>
@@ -180,7 +151,7 @@
         </section>
 
 
-        <!-- 4 fragmento que se utiliza para confirmar que se desea eliminar una dirección -->
+        <!-- 4 fragmento que se utiliza para confirmar que se desea eliminar una constante -->
         <section th:fragment="confirmarEliminar">
             <div class="modal fade" 
                  id="confirmModal" 
@@ -189,8 +160,8 @@
                  aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered custom-modal-animation">
                     <div class="modal-content animate-slide-up">
-                        <form th:action="@{/direccion/eliminar}" th:object="${direccion}" method="post">
-                            <input type="hidden" name="idDireccion" id="modalId"/>
+                        <form th:action="@{/constante/eliminar}" th:object="${constante}" method="post">
+                            <input type="hidden" name="idConstante" id="modalId"/>
                             <div class="modal-header bg-warning text-white">
                                 <h5 class="modal-title" id="modalLabel">
                                     <i class="fa-solid fa-circle-radiation"></i> [[#{accion.confirmar}]]

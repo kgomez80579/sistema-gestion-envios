@@ -40,6 +40,7 @@
                                 <div class="mb-3">
                                     <label>[[#{cliente.usuario}]]</label>
                                     <select name="usuario.idUsuario" class="form-select" required>
+                                        <option value="" disabled selected>Seleccione un usuario</option>
                                         <option th:each="u : ${usuarios}" th:value="${u.idUsuario}">
                                             [[${u.nombre}]] [[${u.apellidos}]] - [[${u.correo}]]
                                         </option>
@@ -98,7 +99,12 @@
                                             <td>[[${c.usuario.nombre}]] [[${c.usuario.apellidos}]]</td>
                                             <td>[[${c.usuario.correo}]]</td>
                                             <td>[[${c.telefono}]]</td>
-                                            <td>[[${c.usuario.rol.nombreRol}]]</td>
+
+                                            <td>
+                                                <span th:each="rol : ${c.usuario.roles}">
+                                                    [[${rol.rol}]]
+                                                </span>
+                                            </td>
 
                                             <td sec:authorize="hasRole('ADMIN')">
                                                 <button type="button" class="btn btn-danger"
