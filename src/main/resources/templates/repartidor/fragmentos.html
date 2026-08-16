@@ -7,7 +7,7 @@
         <section th:fragment="agregar">
             <div class="row py-2">
                 <div class="col-md-12 text-end">
-                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#agregarRepartidor">
+                    <button type="button" class="btn btn-info" sec:authorize="hasRole('ADMIN')" data-bs-toggle="modal" data-bs-target="#agregarRepartidor">
                         <i class="fas fa-truck"></i> [[#{repartidor.agregar}]]
                     </button>
                 </div>
@@ -85,8 +85,8 @@
                                 <th>[[#{repartidor.estado}]]</th>
                                 <th>[[#{repartidor.foto}]]</th>
                                 <th>[[#{repartidor.licencia}]]</th>
-                                <th></th>
-                                <th></th>
+                                <th sec:authorize="hasRole('ADMIN')"></th>
+                                <th sec:authorize="hasRole('ADMIN')"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,12 +105,12 @@
                                     </a>
                                     <span th:if="${r.licenciaUrl == null}">[[#{repartidor.sinLicencia}]]</span>
                                 </td>
-                                <td>
+                                <td sec:authorize="hasRole('ADMIN')">
                                     <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal" th:data-bs-id="${r.idRepartidor}" th:data-bs-descripcion="${r.usuario.nombre + ' ' + r.usuario.apellidos}">
                                         <i class="fas fa-trash"></i> [[#{accion.eliminar}]]
                                     </button>
                                 </td>
-                                <td>
+                                <td sec:authorize="hasRole('ADMIN')">
                                     <a th:href="@{/repartidor/modificar/{id}(id=${r.idRepartidor})}" class="btn btn-warning">
                                         <i class="fas fa-edit"></i> [[#{accion.actualizar}]]
                                     </a>
