@@ -68,7 +68,7 @@
                         <tbody>
                             <tr th:each="rol : ${rolesAsignados}">
                                 <td>[[${rol.rol}]]</td>
-                                <td sec:authorize="hasRole('ROLE_ADMIN')" class="text-end">
+                                <td sec:authorize="hasRole('ADMIN')" class="text-end">
                                     <form method="get" th:action="@{/usuario_rol/eliminar}">
                                         <input type="hidden" name="idRol" th:value="${rol.idRol}"/>
                                         <input type="hidden" name="username" th:value="${usuario.username}"/>

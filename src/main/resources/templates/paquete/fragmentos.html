@@ -81,7 +81,7 @@
                                             <th>[[#{paquete.peso}]]</th>
                                             <th>[[#{paquete.dimensiones}]]</th>
                                             <th>[[#{paquete.fechaRegistro}]]</th>
-                                            <th sec:authorize="hasRole('ROLE_ADMIN')"></th>
+                                            <th sec:authorize="hasRole('ADMIN')"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -91,7 +91,7 @@
                                             <td>[[${p.peso}]]</td>
                                             <td>[[${p.dimensiones}]]</td>
                                             <td>[[${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}]]</td>
-                                            <td sec:authorize="hasRole('ROLE_ADMIN')">
+                                            <td sec:authorize="hasRole('ADMIN')">
                                                 <div class="d-flex align-items-start">
                                                     <button type="button" class="btn btn-danger"
                                                             data-bs-toggle="modal"
