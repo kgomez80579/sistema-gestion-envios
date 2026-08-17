@@ -32,7 +32,7 @@
                     <li class="nav-item px-2" sec:authorize="hasRole('ADMIN')"><a class="nav-link" th:href="@{/cliente/listado}">[[#{plantilla.clientes}]]</a></li>
                     <li class="nav-item px-2" sec:authorize="hasRole('ADMIN')"><a class="nav-link" th:href="@{/repartidor/listado}">[[#{plantilla.repartidores}]]</a></li>  
                     <li class="nav-item px-2"><a class="nav-link" th:href="@{/envio/listado}">[[#{plantilla.envios}]]</a></li>
-                    <li class="nav-item px-2" sec:authorize="hasAnyRole('CLIENTE','ADMIN')">
+                    <li class="nav-item px-2" sec:authorize="hasAnyRole('CLIENTE','ADMIN','REPARTIDOR')">
                         <a class="nav-link" th:href="@{/solicitud-recoleccion/listado}">[[#{plantilla.solicitudes}]]</a>
                     </li>
 

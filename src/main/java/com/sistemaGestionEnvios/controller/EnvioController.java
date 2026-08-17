@@ -72,28 +72,23 @@ public class EnvioController {
         if (esAdmin(authentication)) {
             envios = envioService.getEnvios();
 
-        } else if (esCliente(authentication)) {
-            Optional<Cliente> clienteOpt = getClienteActual(authentication);
-
-            if (clienteOpt.isEmpty()) {
-                envios = Collections.emptyList();
-            } else {
-                Cliente cliente = clienteOpt.get();
-                envios = envioService.getEnviosPorCliente(cliente.getIdCliente());
-            }
-
-        } else if (esRepartidor(authentication)) {
+        } else {
             Optional<Repartidor> repartidorOpt = getRepartidorActual(authentication);
 
-            if (repartidorOpt.isEmpty()) {
-                envios = Collections.emptyList();
-            } else {
+            if (repartidorOpt.isPresent()) {
                 Repartidor repartidor = repartidorOpt.get();
                 envios = envioService.getEnviosPorRepartidor(repartidor.getIdRepartidor());
-            }
 
-        } else {
-            envios = Collections.emptyList();
+            } else {
+                Optional<Cliente> clienteOpt = getClienteActual(authentication);
+
+                if (clienteOpt.isPresent()) {
+                    Cliente cliente = clienteOpt.get();
+                    envios = envioService.getEnviosPorCliente(cliente.getIdCliente());
+                } else {
+                    envios = Collections.emptyList();
+                }
+            }
         }
 
         model.addAttribute("envios", envios);

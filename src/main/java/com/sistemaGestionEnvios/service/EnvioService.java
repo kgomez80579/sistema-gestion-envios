@@ -2,7 +2,9 @@ package com.sistemaGestionEnvios.service;
 
 import com.sistemaGestionEnvios.domain.Envio;
 import com.sistemaGestionEnvios.domain.EstadoEnvio;
+import com.sistemaGestionEnvios.domain.SolicitudRecoleccion;
 import com.sistemaGestionEnvios.repository.EnvioRepository;
+import com.sistemaGestionEnvios.repository.SolicitudRecoleccionRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -16,11 +18,16 @@ public class EnvioService {
 
     private final EnvioRepository envioRepository;
     private final EstadoEnvioService estadoEnvioService;
+    private final SolicitudRecoleccionRepository solicitudRecoleccionRepository;
 
-    public EnvioService(EnvioRepository envioRepository,
-            EstadoEnvioService estadoEnvioService) {
+    public EnvioService(
+            EnvioRepository envioRepository,
+            EstadoEnvioService estadoEnvioService,
+            SolicitudRecoleccionRepository solicitudRecoleccionRepository) {
+
         this.envioRepository = envioRepository;
         this.estadoEnvioService = estadoEnvioService;
+        this.solicitudRecoleccionRepository = solicitudRecoleccionRepository;
     }
 
     @Transactional(readOnly = true)
@@ -42,7 +49,7 @@ public class EnvioService {
     public List<Envio> getEnviosPorEstado(Integer idEstado) {
         return envioRepository.findByEstadoEnvioIdEstado(idEstado);
     }
-    
+
     @Transactional(readOnly = true)
     public boolean existeEnvioParaSolicitud(Integer idSolicitud) {
         return envioRepository.existsBySolicitudIdSolicitud(idSolicitud);
@@ -60,23 +67,58 @@ public class EnvioService {
 
     @Transactional
     public void save(Envio envio) {
+
+        // Si viene una solicitud, obtener la entidad desde la BD
+        if (envio.getSolicitud() != null
+                && envio.getSolicitud().getIdSolicitud() != null) {
+
+            Integer idSolicitud = envio.getSolicitud().getIdSolicitud();
+
+            SolicitudRecoleccion solicitud = solicitudRecoleccionRepository
+                    .findById(idSolicitud)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                    "La solicitud de recolección no existe."));
+
+            // entidad administrada por JPA
+            envio.setSolicitud(solicitud);
+        }
+
         if (envio.getRepartidor() != null
                 && envio.getRepartidor().getIdRepartidor() == null) {
             envio.setRepartidor(null);
         }
+
         if (envio.getIdEnvio() == null) {
+
+            // Evitar crear dos envíos para la misma solicitud
+            if (envio.getSolicitud() != null
+                    && envio.getSolicitud().getIdSolicitud() != null) {
+
+                Integer idSolicitud = envio.getSolicitud().getIdSolicitud();
+
+                if (envioRepository.existsBySolicitudIdSolicitud(idSolicitud)) {
+                    throw new IllegalStateException(
+                            "Esta solicitud ya tiene un envío registrado.");
+                }
+            }
+
             EstadoEnvio estadoInicial
                     = estadoEnvioService.getEstadoPorNombre("Registrado");
+
             if (estadoInicial == null) {
                 throw new IllegalStateException(
                         "No existe el estado inicial 'Registrado'.");
             }
+
             envio.setEstadoEnvio(estadoInicial);
+
             if (envio.getCodigoSeguimiento() == null
                     || envio.getCodigoSeguimiento().isBlank()) {
+
                 envio.setCodigoSeguimiento(generarCodigoSeguimiento());
             }
         }
+
         envioRepository.save(envio);
     }
 
@@ -129,6 +171,5 @@ public class EnvioService {
                 DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         return "ENV-" + fecha;
     }
-    
-    
+
 }

@@ -89,15 +89,6 @@
                                         </select>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label>[[#{envio.ruta}]]</label>
-                                        <select name="ruta.idRuta" class="form-select">
-                                            <option value="">Sin ruta</option>
-                                            <option th:each="rt : ${rutas}" th:value="${rt.idRuta}">
-                                                [[${rt.nombreRuta}]] - [[${rt.zona}]]
-                                            </option>
-                                        </select>
-                                    </div>
                                 </div>
 
                                 <div class="mb-3">
@@ -402,53 +393,53 @@
                                     </div>
 
 
-                                <div class="mb-3">
-                                    <label>[[#{envio.estadoEnvio}]]</label>
-                                    <select name="estadoEnvio.idEstado" th:field="*{estadoEnvio.idEstado}"
-                                            class="form-select" required>
-                                        <option th:each="est : ${estadosEnvio}" th:value="${est.idEstado}">
-                                            [[${est.nombreEstado}]]
-                                        </option>
-                                    </select>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>[[#{envio.codigoSeguimiento}]]</label>
-                                    <input type="text" class="form-control" name="codigoSeguimiento"
-                                           th:field="*{codigoSeguimiento}" maxlength="30" required/>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label>[[#{envio.nombreDestinatario}]]</label>
-                                        <input type="text" class="form-control" name="nombreDestinatario"
-                                               th:field="*{nombreDestinatario}" maxlength="100"/>
+                                    <div class="mb-3">
+                                        <label>[[#{envio.estadoEnvio}]]</label>
+                                        <select name="estadoEnvio.idEstado" th:field="*{estadoEnvio.idEstado}"
+                                                class="form-select" required>
+                                            <option th:each="est : ${estadosEnvio}" th:value="${est.idEstado}">
+                                                [[${est.nombreEstado}]]
+                                            </option>
+                                        </select>
                                     </div>
 
-                                    <div class="col-md-6 mb-3">
-                                        <label>[[#{envio.telefonoDestinatario}]]</label>
-                                        <input type="text" class="form-control" name="telefonoDestinatario"
-                                               th:field="*{telefonoDestinatario}" maxlength="25"/>
+                                    <div class="mb-3">
+                                        <label>[[#{envio.codigoSeguimiento}]]</label>
+                                        <input type="text" class="form-control" name="codigoSeguimiento"
+                                               th:field="*{codigoSeguimiento}" maxlength="30" required/>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label>[[#{envio.nombreDestinatario}]]</label>
+                                            <input type="text" class="form-control" name="nombreDestinatario"
+                                                   th:field="*{nombreDestinatario}" maxlength="100"/>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label>[[#{envio.telefonoDestinatario}]]</label>
+                                            <input type="text" class="form-control" name="telefonoDestinatario"
+                                                   th:field="*{telefonoDestinatario}" maxlength="25"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>[[#{envio.fechaRecoleccionEstimada}]]</label>
+                                        <input type="datetime-local" class="form-control"
+                                               name="fechaRecoleccionEstimada"
+                                               th:field="*{fechaRecoleccionEstimada}"/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label>[[#{envio.observacion}]]</label>
+                                        <textarea class="form-control" name="observacion"
+                                                  th:field="*{observacion}"
+                                                  maxlength="255" rows="3"></textarea>
+                                    </div>
+
+
                                 </div>
-
-                                <div class="mb-3">
-                                    <label>[[#{envio.fechaRecoleccionEstimada}]]</label>
-                                    <input type="datetime-local" class="form-control"
-                                           name="fechaRecoleccionEstimada"
-                                           th:field="*{fechaRecoleccionEstimada}"/>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label>[[#{envio.observacion}]]</label>
-                                    <textarea class="form-control" name="observacion"
-                                              th:field="*{observacion}"
-                                              maxlength="255" rows="3"></textarea>
-                                </div>
-
-
                             </div>
-                        </div>
 
                     </form>
                 </div>

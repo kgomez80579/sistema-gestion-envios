@@ -155,7 +155,7 @@
                                             <td>[[${s.descripcionPaquete}]]</td>
                                             <td>[[${#temporals.format(s.fechaHoraEstimada, 'dd/MM/yyyy HH:mm')}]]</td>
                                             <td>
-                                                    [[${s.estado}]]
+                                                [[${s.estado}]]
 
                                             </td>
                                             <td>
@@ -181,13 +181,17 @@
                                                         <i class="fa-solid fa-xmark"></i> [[#{solicitud.rechazar}]]
                                                     </button>
                                                 </div>
-                                                
+
                                                 <!-- Acción de admin para registrar envío con la solicitud ya aprobada -->
                                                 <div sec:authorize="hasRole('ADMIN')"
-                                                     th:if="${s.estado == 'Aprobada' and s.envioGenerado == false}">
+                                                     th:if="${s.estado == 'Aprobada' and !s.envioGenerado}">
+
                                                     <a th:href="@{/envio/nuevo-desde-solicitud/{id}(id=${s.idSolicitud})}"
                                                        class="btn btn-primary btn-sm">
-                                                        <i class="fa-solid fa-truck-fast"></i> [[#{solicitud.registrarEnvio}]]
+
+                                                        <i class="fa-solid fa-truck-fast"></i>
+                                                        [[#{solicitud.registrarEnvio}]]
+
                                                     </a>
                                                 </div>
 

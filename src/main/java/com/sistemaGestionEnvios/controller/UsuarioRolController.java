@@ -17,11 +17,11 @@ public class UsuarioRolController {
  
     @Autowired
     private UsuarioService usuarioService;
-    // Endpoint para la vista inicial
+    // vista inicial
     @GetMapping("/mantenimiento")
     public String mantenimiento(Model model) {
         model.addAttribute("usuario", new Usuario());
-        // Se inicializan listas vacías para evitar errores de Thymeleaf
+        // Se inicializan listas vacías
         model.addAttribute("rolesAsignados", Collections.emptySet());
         model.addAttribute("rolesDisponibles", Collections.emptyList());
         return "usuario_rol/mantenimiento";
@@ -56,16 +56,16 @@ public String buscarUsuario(@RequestParam("username") String username, Model mod
     return "usuario_rol/mantenimiento"; // Vuelve a la misma página
 }
  
-    // 3. Endpoint para agregar un rol
+    //  para agregar un rol
     @GetMapping("/agregar")
     public String agregarRol(@RequestParam("username") String username, 
                              @RequestParam("nombreRol") String nombreRol) {
         usuarioService.asignarRolPorUsername(username, nombreRol); 
-        // Redirige al /buscar para recargar los datos del usuario actualizado
+        // Redirige al buscar para recargar los datos del usuario actualizado
         return "redirect:/usuario_rol/buscar?username=" + username; 
     }
  
-    // 4. Endpoint para eliminar un rol
+    //para eliminar un rol
     @GetMapping("/eliminar")
     public String eliminarRol(@RequestParam("username") String username, 
                               @RequestParam("idRol") Integer idRol) {

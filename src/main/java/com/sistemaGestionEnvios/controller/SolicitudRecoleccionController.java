@@ -77,16 +77,17 @@ private final SolicitudRecoleccionService solicitudRecoleccionService;
             }
 
         } else {
-            Optional<Cliente> clienteOpt = getClienteActual(authentication);
+            Optional<Repartidor> repartidorOpt = getRepartidorActual(authentication);
 
-            if (clienteOpt.isPresent()) {
-                Cliente cliente = clienteOpt.get();
-                solicitudes = solicitudRecoleccionService.getSolicitudesPorCliente(cliente.getIdCliente());
+            if (repartidorOpt.isPresent()) {
+                solicitudes = solicitudRecoleccionService.getSolicitudesPorRepartidor(
+                        repartidorOpt.get().getIdRepartidor());
             } else {
-                Optional<Repartidor> repartidorOpt = getRepartidorActual(authentication);
-                if (repartidorOpt.isPresent()) {
-                    solicitudes = solicitudRecoleccionService.getSolicitudesPorRepartidor(
-                            repartidorOpt.get().getIdRepartidor());
+                Optional<Cliente> clienteOpt = getClienteActual(authentication);
+
+                if (clienteOpt.isPresent()) {
+                    Cliente cliente = clienteOpt.get();
+                    solicitudes = solicitudRecoleccionService.getSolicitudesPorCliente(cliente.getIdCliente());
                 } else {
                     solicitudes = Collections.emptyList();
                 }

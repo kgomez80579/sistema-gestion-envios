@@ -15,12 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
  
 @Service
 public class UsuarioService {
- 
+
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final FirebaseStorageService firebaseStorageService;
     private final PasswordEncoder passwordEncoder;
- 
+
     public UsuarioService(UsuarioRepository usuarioRepository,
             RolRepository rolRepository,
             FirebaseStorageService firebaseStorageService,
@@ -30,7 +30,7 @@ public class UsuarioService {
         this.firebaseStorageService = firebaseStorageService;
         this.passwordEncoder = passwordEncoder;
     }
- 
+
     @Transactional(readOnly = true)
     public List<Usuario> getUsuarios(boolean activo) {
         if (activo) {
@@ -38,51 +38,52 @@ public class UsuarioService {
         }
         return usuarioRepository.findAll();
     }
- 
+
     @Transactional(readOnly = true)
     public Optional<Usuario> getUsuario(Integer idUsuario) {
         return usuarioRepository.findById(idUsuario);
     }
+
     @Transactional(readOnly = true)
     public List<Usuario> getUsuariosPorRol(String rol) {
         return usuarioRepository.findByRolesRol(rol);
     }
- 
+
     @Transactional(readOnly = true)
     public Optional<Usuario> getUsuarioPorUsername(String username) {
         return usuarioRepository.findByUsername(username);
     }
- 
+
     @Transactional(readOnly = true)
     public Optional<Usuario> getUsuarioPorUsernameYPassword(String username,
             String password) {
         return usuarioRepository.findByUsernameAndPassword(username, password);
     }
- 
+
     @Transactional(readOnly = true)
     public Optional<Usuario> getUsuarioPorUsernameOCorreo(String username,
             String correo) {
         return usuarioRepository.findByUsernameOrCorreo(username, correo);
     }
- 
+
     @Transactional(readOnly = true)
     public boolean existeUsuarioPorUsernameOCorreo(String username,
             String correo) {
         return usuarioRepository.existsByUsernameOrCorreo(username, correo);
     }
- 
+
     @Transactional
-    public void save(Usuario usuario, MultipartFile imagenFile, boolean encriptaClave) {   
+    public void save(Usuario usuario, MultipartFile imagenFile, boolean encriptaClave) {
         final Integer idUser = usuario.getIdUsuario();
         Optional<Usuario> usuarioDuplicado = usuarioRepository.findByUsernameOrCorreo(null, usuario.getCorreo());
         if (usuarioDuplicado.isPresent()) {
             Usuario encontrado = usuarioDuplicado.get();
- 
+
             if (idUser == null || !encontrado.getIdUsuario().equals(idUser)) {
                 throw new DataIntegrityViolationException("El correo ya está en uso por otro usuario.");
             }
         }
- 
+
         var asignarRol = false;
         if (usuario.getIdUsuario() == null) {
             if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
@@ -113,7 +114,7 @@ public class UsuarioService {
             asignarRolPorUsername(usuario.getUsername(), "CLIENTE");
         }
     }
- 
+
     @Transactional
     public void delete(Integer idUsuario) {
         if (!usuarioRepository.existsById(idUsuario)) {
@@ -127,7 +128,7 @@ public class UsuarioService {
                     "No se puede eliminar el usuario. Tiene datos asociados.", e);
         }
     }
- 
+
     @Transactional
     public Usuario asignarRolPorUsername(String username, String rolStr) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
@@ -143,8 +144,7 @@ public class UsuarioService {
         usuario.getRoles().add(rol);
         return usuarioRepository.save(usuario);
     }
- 
- 
+
     @Transactional(readOnly = true)
     public List<String> getRolesNombres() {
         return rolRepository.findAll().stream()
