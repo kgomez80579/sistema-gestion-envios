@@ -1,108 +1,95 @@
 package com.sistemaGestionEnvios.controller;
-
+ 
 import com.sistemaGestionEnvios.domain.Usuario;
-import com.sistemaGestionEnvios.service.RolService;
 import com.sistemaGestionEnvios.service.UsuarioService;
 import jakarta.validation.Valid;
 import java.util.Locale;
 import java.util.Optional;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+ 
 @Controller
 @RequestMapping("/usuario")
 public class UsuarioController {
-
+ 
     private final UsuarioService usuarioService;
-    private final RolService rolService;
     private final MessageSource messageSource;
-
-    public UsuarioController(UsuarioService usuarioService, RolService rolService, MessageSource messageSource) {
+ 
+    public UsuarioController(UsuarioService usuarioService,
+            MessageSource messageSource) {
         this.usuarioService = usuarioService;
-        this.rolService = rolService;
         this.messageSource = messageSource;
     }
-
+ 
     @GetMapping("/listado")
-    public String listado(Model model) {
+    public String inicio(Model model) {
         var usuarios = usuarioService.getUsuarios(false);
         model.addAttribute("usuarios", usuarios);
         model.addAttribute("totalUsuarios", usuarios.size());
-
-        var roles = rolService.getRoles();
-        model.addAttribute("roles", roles);
-
-        model.addAttribute("usuario", new Usuario());
-
         return "/usuario/listado";
     }
-
+ 
     @PostMapping("/guardar")
     public String guardar(@Valid Usuario usuario,
+            BindingResult bindingResult,
+            @RequestParam MultipartFile imagenFile,
             RedirectAttributes redirectAttributes) {
-
-        usuarioService.save(usuario);
-
-        redirectAttributes.addFlashAttribute(
-                "todoOk",
-                messageSource.getMessage("mensaje.actualizado", null, Locale.getDefault())
-        );
-
+        if (bindingResult.hasErrors()) {
+            // Redirige al formulario de edición/creación para mostrar errores
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("usuario.error04", null, Locale.getDefault()));
+            // Si no hay idUsuario, redirige al listado con modal para agregar
+            if (usuario.getIdUsuario() == null) {
+                return "redirect:/usuario/listado";
+            }
+            // Si hay idUsuario, redirige al formulario de modificación
+            return "redirect:/usuario/modificar/" + usuario.getIdUsuario();
+        }
+        usuarioService.save(usuario, imagenFile,true);
+        redirectAttributes.addFlashAttribute("todoOk",
+                messageSource.getMessage("mensaje.actualizado",
+                        null, Locale.getDefault()));
         return "redirect:/usuario/listado";
     }
-
-    @PostMapping("/eliminar")
-    public String eliminar(@RequestParam Integer idUsuario,
+ 
+    @PostMapping("/cambiar-estado")
+    public String cambiarEstado(@RequestParam Integer idUsuario,
             RedirectAttributes redirectAttributes) {
-
-        String titulo = "todoOk";
-        String detalle = "usuario.estadoActualizado";
-
         try {
-            usuarioService.cambiarActivo(idUsuario);
+            usuarioService.cambiarEstado(idUsuario);
+            redirectAttributes.addFlashAttribute("todoOk",
+                    messageSource.getMessage("usuario.estadoActualizado", null,
+                            Locale.getDefault()));
         } catch (IllegalArgumentException e) {
-            titulo = "error";
-            detalle = "usuario.error01";
-        } catch (Exception e) {
-            titulo = "error";
-            detalle = "usuario.error03";
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("usuario.error01", null,
+                            Locale.getDefault()));
+        } catch (NoSuchMessageException e) {
+            redirectAttributes.addFlashAttribute("error",
+                    messageSource.getMessage("usuario.error03", null,
+                            Locale.getDefault()));
         }
-
-        redirectAttributes.addFlashAttribute(
-                titulo,
-                messageSource.getMessage(detalle, null, Locale.getDefault())
-        );
-
         return "redirect:/usuario/listado";
     }
 
     @GetMapping("/modificar/{idUsuario}")
     public String modificar(@PathVariable("idUsuario") Integer idUsuario,
-            Model model,
-            RedirectAttributes redirectAttributes) {
-
+            Model model, RedirectAttributes redirectAttributes) {
         Optional<Usuario> usuarioOpt = usuarioService.getUsuario(idUsuario);
-
         if (usuarioOpt.isEmpty()) {
-            redirectAttributes.addFlashAttribute(
-                    "error",
-                    messageSource.getMessage("usuario.error01", null, Locale.getDefault())
-            );
+            redirectAttributes.addFlashAttribute("error",
+                    "El usuario no fue encontrado.");
             return "redirect:/usuario/listado";
         }
-
-        model.addAttribute("usuario", usuarioOpt.get());
-
-        var roles = rolService.getRoles();
-        model.addAttribute("roles", roles);
-
+        Usuario usuario = usuarioOpt.get();
+        usuario.setPassword("");
+        model.addAttribute("usuario", usuario);
         return "/usuario/modifica";
     }
 }

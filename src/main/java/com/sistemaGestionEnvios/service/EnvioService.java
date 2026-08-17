@@ -29,11 +29,6 @@ public class EnvioService {
     }
 
     @Transactional(readOnly = true)
-    public List<Envio> getEnviosActivos() {
-        return envioRepository.findByEstado("Activo");
-    }
-
-    @Transactional(readOnly = true)
     public Optional<Envio> getEnvio(Integer idEnvio) {
         return envioRepository.findById(idEnvio);
     }
@@ -47,62 +42,93 @@ public class EnvioService {
     public List<Envio> getEnviosPorEstado(Integer idEstado) {
         return envioRepository.findByEstadoEnvioIdEstado(idEstado);
     }
+    
+    @Transactional(readOnly = true)
+    public boolean existeEnvioParaSolicitud(Integer idSolicitud) {
+        return envioRepository.existsBySolicitudIdSolicitud(idSolicitud);
+    }
 
     @Transactional(readOnly = true)
     public Envio getEnvioPorCodigo(String codigoSeguimiento) {
         return envioRepository.findByCodigoSeguimiento(codigoSeguimiento);
     }
 
+    @Transactional(readOnly = true)
+    public List<Envio> getEnviosPorRepartidor(Integer idRepartidor) {
+        return envioRepository.findByRepartidorIdRepartidor(idRepartidor);
+    }
+
     @Transactional
     public void save(Envio envio) {
-
         if (envio.getRepartidor() != null
                 && envio.getRepartidor().getIdRepartidor() == null) {
             envio.setRepartidor(null);
         }
-
-        if (envio.getRuta() != null
-                && envio.getRuta().getIdRuta() == null) {
-            envio.setRuta(null);
-        }
-
         if (envio.getIdEnvio() == null) {
-            EstadoEnvio estadoInicial = estadoEnvioService.getEstadoPorNombre("Registrado");
-
+            EstadoEnvio estadoInicial
+                    = estadoEnvioService.getEstadoPorNombre("Registrado");
             if (estadoInicial == null) {
-                throw new IllegalStateException("No existe el estado inicial 'Registrado'.");
+                throw new IllegalStateException(
+                        "No existe el estado inicial 'Registrado'.");
             }
-
             envio.setEstadoEnvio(estadoInicial);
-
-            if (envio.getCodigoSeguimiento() == null || envio.getCodigoSeguimiento().isBlank()) {
+            if (envio.getCodigoSeguimiento() == null
+                    || envio.getCodigoSeguimiento().isBlank()) {
                 envio.setCodigoSeguimiento(generarCodigoSeguimiento());
             }
         }
-
-        if (envio.getEstado() == null || envio.getEstado().isBlank()) {
-            envio.setEstado("Activo");
-        }
-
         envioRepository.save(envio);
     }
 
     @Transactional
     public void delete(Integer idEnvio) {
         if (!envioRepository.existsById(idEnvio)) {
-            throw new IllegalArgumentException("El envío con ID " + idEnvio + " no existe.");
+            throw new IllegalArgumentException(
+                    "El envío con ID " + idEnvio + " no existe.");
         }
-
         try {
             envioRepository.deleteById(idEnvio);
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("No se puede eliminar el envío. Tiene historial asociado.", e);
+            throw new IllegalStateException(
+                    "No se puede eliminar el envío. Tiene historial asociado.", e);
         }
     }
 
+    @Transactional
+    public void actualizarEstado(Integer idEnvio, Integer idEstado,
+            String observacion, Integer idRepartidorSolicitante) {
+
+        Envio envio = envioRepository.findById(idEnvio)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "El envío con ID " + idEnvio + " no existe."));
+
+        if (idRepartidorSolicitante != null) {
+            if (envio.getRepartidor() == null) {
+                throw new IllegalStateException(
+                        "Este envío no tiene un repartidor asignado.");
+            }
+            if (!envio.getRepartidor().getIdRepartidor().equals(idRepartidorSolicitante)) {
+                throw new IllegalStateException(
+                        "No tiene permisos para actualizar este envío.");
+            }
+        }
+
+        EstadoEnvio estadoNuevo = estadoEnvioService.getEstadoEnvio(idEstado)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "El estado indicado no existe."));
+
+        envio.setEstadoEnvio(estadoNuevo);
+        if (observacion != null && !observacion.isBlank()) {
+            envio.setObservacion(observacion);
+        }
+        envioRepository.save(envio);
+    }
+
     private String generarCodigoSeguimiento() {
-        String fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String fecha = LocalDateTime.now().format(
+                DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         return "ENV-" + fecha;
     }
+    
+    
 }
-

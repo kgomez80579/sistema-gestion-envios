@@ -1,102 +1,174 @@
 package com.sistemaGestionEnvios.service;
-
+ 
+import com.sistemaGestionEnvios.domain.Rol;
 import com.sistemaGestionEnvios.domain.Usuario;
+import com.sistemaGestionEnvios.repository.RolRepository;
 import com.sistemaGestionEnvios.repository.UsuarioRepository;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.multipart.MultipartFile;
+ 
 @Service
 public class UsuarioService {
-
+ 
     private final UsuarioRepository usuarioRepository;
+    private final RolRepository rolRepository;
+    private final FirebaseStorageService firebaseStorageService;
     private final PasswordEncoder passwordEncoder;
-
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+ 
+    public UsuarioService(UsuarioRepository usuarioRepository,
+            RolRepository rolRepository,
+            FirebaseStorageService firebaseStorageService,
+            PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.rolRepository = rolRepository;
+        this.firebaseStorageService = firebaseStorageService;
         this.passwordEncoder = passwordEncoder;
     }
-
+ 
     @Transactional(readOnly = true)
     public List<Usuario> getUsuarios(boolean activo) {
+        if (activo) {
+            return usuarioRepository.findByActivoTrue();
+        }
         return usuarioRepository.findAll();
     }
-
+ 
     @Transactional(readOnly = true)
     public Optional<Usuario> getUsuario(Integer idUsuario) {
         return usuarioRepository.findById(idUsuario);
     }
-
     @Transactional(readOnly = true)
-    public Usuario getUsuarioPorCorreo(String correo) {
-        return usuarioRepository.findByCorreo(correo);
+    public List<Usuario> getUsuariosPorRol(String rol) {
+        return usuarioRepository.findByRolesRol(rol);
     }
-
+ 
     @Transactional(readOnly = true)
-    public Usuario getUsuarioPorEmail(String email) {
-        return usuarioRepository.findByCorreo(email);
+    public Optional<Usuario> getUsuarioPorUsername(String username) {
+        return usuarioRepository.findByUsername(username);
     }
-    
+ 
     @Transactional(readOnly = true)
-    public List<Usuario> getUsuariosPorRol(String nombreRol) {
-        return usuarioRepository.findByRol_NombreRol(nombreRol);
+    public Optional<Usuario> getUsuarioPorUsernameYPassword(String username,
+            String password) {
+        return usuarioRepository.findByUsernameAndPassword(username, password);
     }
-
+ 
+    @Transactional(readOnly = true)
+    public Optional<Usuario> getUsuarioPorUsernameOCorreo(String username,
+            String correo) {
+        return usuarioRepository.findByUsernameOrCorreo(username, correo);
+    }
+ 
+    @Transactional(readOnly = true)
+    public boolean existeUsuarioPorUsernameOCorreo(String username,
+            String correo) {
+        return usuarioRepository.existsByUsernameOrCorreo(username, correo);
+    }
+ 
     @Transactional
-    public void save(Usuario usuario) {
-
-        if (usuario.getIdUsuario() != null) {
-            Usuario usuarioActual = usuarioRepository.findById(usuario.getIdUsuario()).orElse(null);
-
-            if (usuarioActual != null) {
-                if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
-                    usuario.setPassword(usuarioActual.getPassword());
-                }
+    public void save(Usuario usuario, MultipartFile imagenFile, boolean encriptaClave) {   
+        final Integer idUser = usuario.getIdUsuario();
+        Optional<Usuario> usuarioDuplicado = usuarioRepository.findByUsernameOrCorreo(null, usuario.getCorreo());
+        if (usuarioDuplicado.isPresent()) {
+            Usuario encontrado = usuarioDuplicado.get();
+ 
+            if (idUser == null || !encontrado.getIdUsuario().equals(idUser)) {
+                throw new DataIntegrityViolationException("El correo ya está en uso por otro usuario.");
             }
         }
-
-        if (usuario.getEstado() == null || usuario.getEstado().isBlank()) {
-            usuario.setEstado("Activo");
-        }
-
-        if (usuario.getPassword() != null && !usuario.getPassword().isBlank()) {
-            if (!usuario.getPassword().startsWith("$2a$")
-                    && !usuario.getPassword().startsWith("$2b$")
-                    && !usuario.getPassword().startsWith("$2y$")) {
-                usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+ 
+        var asignarRol = false;
+        if (usuario.getIdUsuario() == null) {
+            if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+                throw new IllegalArgumentException("La contraseña es obligatoria para nuevos usuarios.");
             }
-        }
-
-        usuarioRepository.save(usuario);
-    }
-
-    @Transactional
-    public void cambiarActivo(Integer idUsuario) {
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new IllegalArgumentException("El usuario con ID " + idUsuario + " no existe."));
-
-        if ("Activo".equalsIgnoreCase(usuario.getEstado())) {
-            usuario.setEstado("Inactivo");
+            usuario.setPassword(encriptaClave ? passwordEncoder.encode(usuario.getPassword()) : usuario.getPassword());
+            asignarRol = true;
         } else {
-            usuario.setEstado("Activo");
+            if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+                Usuario usuarioExistente = usuarioRepository.findById(usuario.getIdUsuario())
+                        .orElseThrow(() -> new IllegalArgumentException("Usuario a modificar no encontrado."));
+                usuario.setPassword(encriptaClave ? passwordEncoder.encode(usuarioExistente.getPassword()) : usuarioExistente.getPassword());
+            } else {
+                usuario.setPassword(encriptaClave ? passwordEncoder.encode(usuario.getPassword()) : usuario.getPassword());
+            }
         }
-
-        usuarioRepository.save(usuario);
+        usuario = usuarioRepository.save(usuario);
+        if (imagenFile != null && !imagenFile.isEmpty()) { //Si no está vacío... pasaron una imagen...            
+            try {
+                String rutaImagen = firebaseStorageService.uploadImage(
+                        imagenFile, "usuario", usuario.getIdUsuario());
+                usuario.setRutaImagen(rutaImagen);
+                usuarioRepository.save(usuario);
+            } catch (IOException e) {
+            }
+        }
+        if (asignarRol) {
+            asignarRolPorUsername(usuario.getUsername(), "CLIENTE");
+        }
     }
-
+ 
     @Transactional
     public void delete(Integer idUsuario) {
         if (!usuarioRepository.existsById(idUsuario)) {
-            throw new IllegalArgumentException("El usuario con ID " + idUsuario + " no existe.");
+            throw new IllegalArgumentException(
+                    "El usuario con ID " + idUsuario + " no existe.");
         }
-
         try {
             usuarioRepository.deleteById(idUsuario);
         } catch (DataIntegrityViolationException e) {
-            throw new IllegalStateException("No se puede eliminar el usuario. Tiene datos asociados.", e);
+            throw new IllegalStateException(
+                    "No se puede eliminar el usuario. Tiene datos asociados.", e);
         }
+    }
+ 
+    @Transactional
+    public Usuario asignarRolPorUsername(String username, String rolStr) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+        if (usuarioOpt.isEmpty()) {
+            throw new RuntimeException("Usuario no encontrado: " + username);
+        }
+        Usuario usuario = usuarioOpt.get();
+        Optional<Rol> rolOpt = rolRepository.findByRol(rolStr);
+        if (rolOpt.isEmpty()) {
+            throw new RuntimeException("Rol no encontrado.");
+        }
+        Rol rol = rolOpt.get();
+        usuario.getRoles().add(rol);
+        return usuarioRepository.save(usuario);
+    }
+ 
+ 
+    @Transactional(readOnly = true)
+    public List<String> getRolesNombres() {
+        return rolRepository.findAll().stream()
+                .map(Rol::getRol)
+                .toList();
+    }
+
+    @Transactional
+    public void cambiarEstado(Integer idUsuario) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "El usuario con ID " + idUsuario + " no existe."));
+        usuario.setActivo(!usuario.isActivo());
+        usuarioRepository.save(usuario);
+    }
+
+    @Transactional
+    public Usuario eliminarRol(String username, Integer idRol) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);
+        if (usuarioOpt.isEmpty()) {
+            throw new RuntimeException("Usuario no encontrado: " + username);
+        }
+        Usuario usuario = usuarioOpt.get();
+        usuario.getRoles().removeIf(rol -> rol.getIdRol().equals(idRol));
+        return usuarioRepository.save(usuario);
     }
 }

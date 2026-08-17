@@ -1,14 +1,22 @@
 package com.sistemaGestionEnvios.repository;
-
+ 
 import com.sistemaGestionEnvios.domain.Usuario;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
+ 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
-
-    public Usuario findByCorreo(String correo);
-    
-    public List<Usuario> findByRol_NombreRol(String nombreRol);
+    public Optional<Usuario> findByUsernameAndActivoTrue(String username);
+    public List<Usuario> findByActivoTrue();
+ 
+    public Optional<Usuario> findByUsername(String username);
+ 
+    public Optional<Usuario> findByUsernameAndPassword(String username, String Password);
+ 
+    public Optional<Usuario> findByUsernameOrCorreo(String username, String correo);
+ 
+    public boolean existsByUsernameOrCorreo(String username, String correo);
+    public List<Usuario> findByRolesRol(String rol);
 }

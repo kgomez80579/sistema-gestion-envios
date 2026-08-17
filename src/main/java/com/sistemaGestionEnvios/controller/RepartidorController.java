@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
@@ -24,7 +25,8 @@ public class RepartidorController {
     private final UsuarioService usuarioService;
     private final MessageSource messageSource;
 
-    public RepartidorController(RepartidorService repartidorService, UsuarioService usuarioService,
+    public RepartidorController(RepartidorService repartidorService,
+            UsuarioService usuarioService,
             MessageSource messageSource) {
         this.repartidorService = repartidorService;
         this.usuarioService = usuarioService;
@@ -36,34 +38,50 @@ public class RepartidorController {
         var repartidores = repartidorService.getRepartidores();
         model.addAttribute("repartidores", repartidores);
         model.addAttribute("totalRepartidores", repartidores.size());
-
         var usuarios = usuarioService.getUsuariosPorRol("REPARTIDOR");
         model.addAttribute("usuarios", usuarios);
-
         model.addAttribute("repartidor", new Repartidor());
-
         return "/repartidor/listado";
     }
 
     @PostMapping("/guardar")
-    public String guardar(@Valid Repartidor repartidor,
+    public String guardar(
+            @Valid Repartidor repartidor,
+            @RequestParam(value = "fotoFile", required = false) MultipartFile fotoFile,
+            @RequestParam(value = "licenciaFile", required = false) MultipartFile licenciaFile,
             RedirectAttributes redirectAttributes) {
-
         String titulo = "todoOk";
         String detalle = "mensaje.actualizado";
-
         try {
             repartidorService.save(repartidor);
+            if ((fotoFile != null && !fotoFile.isEmpty())
+                    || (licenciaFile != null && !licenciaFile.isEmpty())) {
+
+                repartidorService.guardarImagenes(
+                        repartidor.getIdRepartidor(),
+                        fotoFile,
+                        licenciaFile
+                );
+            }
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            titulo = "error";
+            detalle = repartidor.getIdRepartidor() == null
+                    ? "repartidor.error04"
+                    : "repartidor.error03";
+            e.printStackTrace();
+        } catch (java.io.IOException e) {
+            titulo = "error";
+            detalle = "repartidor.errorImagen";
+            e.printStackTrace();
         } catch (Exception e) {
             titulo = "error";
-            detalle = "repartidor.error04";
+            detalle = "repartidor.error03";
+            e.printStackTrace();
         }
-
         redirectAttributes.addFlashAttribute(
                 titulo,
                 messageSource.getMessage(detalle, null, Locale.getDefault())
         );
-
         return "redirect:/repartidor/listado";
     }
 
@@ -73,7 +91,6 @@ public class RepartidorController {
 
         String titulo = "todoOk";
         String detalle = "mensaje.eliminado";
-
         try {
             repartidorService.delete(idRepartidor);
         } catch (IllegalArgumentException e) {
@@ -86,36 +103,34 @@ public class RepartidorController {
             titulo = "error";
             detalle = "repartidor.error03";
         }
-
         redirectAttributes.addFlashAttribute(
                 titulo,
                 messageSource.getMessage(detalle, null, Locale.getDefault())
         );
-
         return "redirect:/repartidor/listado";
     }
 
     @GetMapping("/modificar/{idRepartidor}")
-    public String modificar(@PathVariable("idRepartidor") Integer idRepartidor,
+    public String modificar(
+            @PathVariable("idRepartidor") Integer idRepartidor,
             Model model,
             RedirectAttributes redirectAttributes) {
-
-        Optional<Repartidor> repartidorOpt = repartidorService.getRepartidor(idRepartidor);
-
+        Optional<Repartidor> repartidorOpt =
+                repartidorService.getRepartidor(idRepartidor);
         if (repartidorOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute(
                     "error",
-                    messageSource.getMessage("repartidor.error01", null, Locale.getDefault())
+                    messageSource.getMessage(
+                            "repartidor.error01",
+                            null,
+                            Locale.getDefault())
             );
             return "redirect:/repartidor/listado";
         }
-
+        
         model.addAttribute("repartidor", repartidorOpt.get());
-
         var usuarios = usuarioService.getUsuariosPorRol("REPARTIDOR");
         model.addAttribute("usuarios", usuarios);
-
         return "/repartidor/modifica";
     }
-
 }
