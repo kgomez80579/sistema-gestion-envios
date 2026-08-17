@@ -63,9 +63,20 @@ public class RepartidorController {
                         licenciaFile
                 );
             }
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            titulo = "error";
+            detalle = repartidor.getIdRepartidor() == null
+                    ? "repartidor.error04"
+                    : "repartidor.error03";
+            e.printStackTrace();
+        } catch (java.io.IOException e) {
+            titulo = "error";
+            detalle = "repartidor.errorImagen";
+            e.printStackTrace();
         } catch (Exception e) {
             titulo = "error";
-            detalle = "repartidor.error04";
+            detalle = "repartidor.error03";
+            e.printStackTrace();
         }
         redirectAttributes.addFlashAttribute(
                 titulo,

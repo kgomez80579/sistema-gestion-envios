@@ -12,7 +12,7 @@ public class Repartidor implements Serializable {
  
     private static final long serialVersionUID = 1L;
  
-    @Id
+        @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_repartidor")
     private Integer idRepartidor;
@@ -26,10 +26,10 @@ public class Repartidor implements Serializable {
  
     @Column(length = 30)
     private String estado;
-    @Column(name = "foto_url", length = 500)
+    @Column(name = "foto_url", length = 2048)
     private String fotoUrl;
  
-    @Column(name = "licencia_url", length = 500)
+    @Column(name = "licencia_url", length = 2048)
     private String licenciaUrl;
  
     @Column(name = "fecha_creacion", insertable = false, updatable = false)

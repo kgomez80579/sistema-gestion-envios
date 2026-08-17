@@ -42,10 +42,20 @@ public class EnvioService {
     public List<Envio> getEnviosPorEstado(Integer idEstado) {
         return envioRepository.findByEstadoEnvioIdEstado(idEstado);
     }
+    
+    @Transactional(readOnly = true)
+    public boolean existeEnvioParaSolicitud(Integer idSolicitud) {
+        return envioRepository.existsBySolicitudIdSolicitud(idSolicitud);
+    }
 
     @Transactional(readOnly = true)
     public Envio getEnvioPorCodigo(String codigoSeguimiento) {
         return envioRepository.findByCodigoSeguimiento(codigoSeguimiento);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Envio> getEnviosPorRepartidor(Integer idRepartidor) {
+        return envioRepository.findByRepartidorIdRepartidor(idRepartidor);
     }
 
     @Transactional
@@ -84,9 +94,41 @@ public class EnvioService {
         }
     }
 
+    @Transactional
+    public void actualizarEstado(Integer idEnvio, Integer idEstado,
+            String observacion, Integer idRepartidorSolicitante) {
+
+        Envio envio = envioRepository.findById(idEnvio)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "El envío con ID " + idEnvio + " no existe."));
+
+        if (idRepartidorSolicitante != null) {
+            if (envio.getRepartidor() == null) {
+                throw new IllegalStateException(
+                        "Este envío no tiene un repartidor asignado.");
+            }
+            if (!envio.getRepartidor().getIdRepartidor().equals(idRepartidorSolicitante)) {
+                throw new IllegalStateException(
+                        "No tiene permisos para actualizar este envío.");
+            }
+        }
+
+        EstadoEnvio estadoNuevo = estadoEnvioService.getEstadoEnvio(idEstado)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "El estado indicado no existe."));
+
+        envio.setEstadoEnvio(estadoNuevo);
+        if (observacion != null && !observacion.isBlank()) {
+            envio.setObservacion(observacion);
+        }
+        envioRepository.save(envio);
+    }
+
     private String generarCodigoSeguimiento() {
         String fecha = LocalDateTime.now().format(
                 DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         return "ENV-" + fecha;
     }
+    
+    
 }

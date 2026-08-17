@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head th:replace="~{general/fragmentos :: head}"/>
+
+    <body>
+
+        <!-- Fragmento para que el cliente solicite una recolección -->
+        <section th:fragment="agregar">
+            <div class="seccion-agregar">
+                <div class="col-md-1"></div>
+                <div class="col-md-3" sec:authorize="hasRole('CLIENTE')">
+                    <button type="button" class="btn btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#agregarSolicitudModal">
+                        <i class="fa-solid fa-plus"></i> [[#{solicitud.agregar}]]
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal fade" id="agregarSolicitudModal" tabindex="-1"
+                 aria-labelledby="agregarSolicitudLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header bg-info text-white">
+                            <h1 class="modal-title fs-5" id="agregarSolicitudLabel">
+                                <i class="fa-solid fa-box-open"></i> [[#{solicitud.agregar}]]
+                            </h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+
+                        <form th:action="@{/solicitud-recoleccion/guardar}" th:object="${solicitud}"
+                              class="was-validated" method="post">
+
+                            <div class="modal-body">
+
+                                <div class="mb-3">
+                                    <label>[[#{solicitud.direccionOrigen}]]</label>
+                                    <select name="direccionOrigen.idDireccion" class="form-select" required>
+                                        <option th:each="d : ${direcciones}" th:value="${d.idDireccion}">
+                                            [[${d.provincia}]], [[${d.canton}]], [[${d.distrito}]] - [[${d.direccionExacta}]]
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{solicitud.descripcionPaquete}]]</label>
+                                    <input type="text" name="descripcionPaquete" class="form-control"
+                                           maxlength="150" required/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label>[[#{solicitud.fechaHoraEstimada}]]</label>
+                                    <input type="datetime-local" name="fechaHoraEstimada"
+                                           class="form-control" required/>
+                                </div>
+
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-floppy-disk"></i> [[#{accion.guardar}]]
+                                </button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento de filtros solo para admin -->
+        <section th:fragment="filtros" class="seccion-filtros" sec:authorize="hasRole('ADMIN')">
+            <div class="row p-3">
+                <div class="col-md-12">
+                    <div class="card p-2">
+                        <div class="card-header">
+                            <h5><i class="fa-solid fa-filter"></i> [[#{solicitud.filtros}]]</h5>
+                        </div>
+
+                        <div class="card-body">
+                            <form th:action="@{/solicitud-recoleccion/listado}" method="get">
+                                <div class="row">
+                                    <div class="col-md-8 mb-3">
+                                        <label>[[#{solicitud.estado}]]</label>
+                                        <select name="estado" class="form-select">
+                                            <option value="">Todos</option>
+                                            <option value="Pendiente de recolección"
+                                                    th:selected="${estadoSeleccionado == 'Pendiente de recolección'}">Pendiente de recolección</option>
+                                            <option value="Aprobada"
+                                                    th:selected="${estadoSeleccionado == 'Aprobada'}">Aprobada</option>
+                                            <option value="Rechazada"
+                                                    th:selected="${estadoSeleccionado == 'Rechazada'}">Rechazada</option>
+                                            <option value="Cancelada"
+                                                    th:selected="${estadoSeleccionado == 'Cancelada'}">Cancelada</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-2 mb-3 d-grid align-items-end">
+                                        <button type="submit" class="btn btn-primary mt-4">
+                                            <i class="fa-solid fa-magnifying-glass"></i> [[#{solicitud.filtrar}]]
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <a th:href="@{/solicitud-recoleccion/listado}" class="btn btn-secondary">
+                                <i class="fa-solid fa-rotate-left"></i> [[#{solicitud.limpiarFiltros}]]
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fragmento de listado -->
+        <section th:fragment="listado" class="seccion-listado">
+            <div class="row p-3">
+                <div class="col-md-10">
+                    <div class="card p-2">
+                        <div class="card-header">
+                            <h4>[[#{solicitud.listado}]]</h4>
+                        </div>
+
+                        <div class="card-body">
+                            <div th:if="${solicitudes != null and !solicitudes.empty}">
+                                <table class="table table-striped table-hover">
+                                    <thead class="thead-azul">
+                                        <tr>
+                                            <th>#</th>
+                                            <th sec:authorize="hasRole('ADMIN')">[[#{solicitud.cliente}]]</th>
+                                            <th>[[#{solicitud.direccionOrigen}]]</th>
+                                            <th>[[#{solicitud.descripcionPaquete}]]</th>
+                                            <th>[[#{solicitud.fechaHoraEstimada}]]</th>
+                                            <th>[[#{solicitud.estado}]]</th>
+                                            <th>[[#{solicitud.repartidor}]]</th>
+                                            <th>[[#{solicitud.motivoRechazo}]]</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr th:each="s : ${solicitudes}">
+                                            <td>[[${s.idSolicitud}]]</td>
+                                            <td sec:authorize="hasRole('ADMIN')">
+                                                [[${s.cliente.usuario.nombre}]] [[${s.cliente.usuario.apellidos}]]
+                                            </td>
+                                            <td>[[${s.direccionOrigen.provincia}]], [[${s.direccionOrigen.canton}]]</td>
+                                            <td>[[${s.descripcionPaquete}]]</td>
+                                            <td>[[${#temporals.format(s.fechaHoraEstimada, 'dd/MM/yyyy HH:mm')}]]</td>
+                                            <td>
+                                                    [[${s.estado}]]
+
+                                            </td>
+                                            <td>
+                                                <span th:if="${s.repartidor != null}">
+                                                    [[${s.repartidor.usuario.nombre}]] [[${s.repartidor.usuario.apellidos}]]
+                                                </span>
+                                            </td>
+                                            <td>[[${s.motivoRechazo}]]</td>
+
+                                            <td>
+                                                <!-- Acciones para admin de aprobar y rechazar -->
+                                                <div sec:authorize="hasRole('ADMIN')" th:if="${s.estado == 'Pendiente de recolección'}">
+                                                    <button type="button" class="btn btn-success btn-sm mb-1"
+                                                            data-bs-toggle="modal" data-bs-target="#aprobarModal"
+                                                            th:data-bs-id="${s.idSolicitud}"
+                                                            th:data-bs-descripcion="${s.descripcionPaquete}">
+                                                        <i class="fa-solid fa-check"></i> [[#{solicitud.aprobar}]]
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-sm mb-1"
+                                                            data-bs-toggle="modal" data-bs-target="#rechazarModal"
+                                                            th:data-bs-id="${s.idSolicitud}"
+                                                            th:data-bs-descripcion="${s.descripcionPaquete}">
+                                                        <i class="fa-solid fa-xmark"></i> [[#{solicitud.rechazar}]]
+                                                    </button>
+                                                </div>
+                                                
+                                                <!-- Acción de admin para registrar envío con la solicitud ya aprobada -->
+                                                <div sec:authorize="hasRole('ADMIN')"
+                                                     th:if="${s.estado == 'Aprobada' and s.envioGenerado == false}">
+                                                    <a th:href="@{/envio/nuevo-desde-solicitud/{id}(id=${s.idSolicitud})}"
+                                                       class="btn btn-primary btn-sm">
+                                                        <i class="fa-solid fa-truck-fast"></i> [[#{solicitud.registrarEnvio}]]
+                                                    </a>
+                                                </div>
+
+                                                <!-- Acción para cliente de cancelar -->
+                                                <div sec:authorize="hasRole('CLIENTE')" th:if="${s.estado == 'Pendiente de recolección'}">
+                                                    <button type="button" class="btn btn-warning btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#cancelarSolicitudModal"
+                                                            th:data-bs-id="${s.idSolicitud}"
+                                                            th:data-bs-descripcion="${s.descripcionPaquete}">
+                                                        <i class="fa-solid fa-ban"></i> [[#{solicitud.cancelar}]]
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="text-center p-2" th:if="${solicitudes == null or solicitudes.empty}">
+                                <span>[[#{lista.vacia}]]</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <div class="card text-center tarjeta-total mb-3">
+                        <div class="card-body">
+                            <h3>[[#{solicitud.total}]]</h3>
+                            <h4 class="fs-2">
+                                <i class="fa-solid fa-box-open"></i> [[${totalSolicitudes}]]
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal aprobar solo para admin -->
+        <section th:fragment="aprobarModal" sec:authorize="hasRole('ADMIN')">
+            <div class="modal fade" id="aprobarModal" tabindex="-1"
+                 aria-labelledby="aprobarModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+
+                        <form th:action="@{/solicitud-recoleccion/aprobar}" method="post">
+                            <input type="hidden" name="idSolicitud" id="aprobarModalId"/>
+
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title" id="aprobarModalLabel">
+                                    <i class="fa-solid fa-check"></i> [[#{solicitud.aprobar}]]
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>[[#{solicitud.descripcionPaquete}]]: <span id="aprobarModalDescripcion"></span></p>
+
+                                <label>[[#{solicitud.repartidor}]]</label>
+                                <select name="idRepartidor" class="form-select" required>
+                                    <option th:each="r : ${repartidores}" th:value="${r.idRepartidor}">
+                                        [[${r.usuario.nombre}]] [[${r.usuario.apellidos}]] - [[${r.vehiculo}]]
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fa-solid fa-check"></i> [[#{solicitud.aprobar}]]
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal rechazar solo para admin-->
+        <section th:fragment="rechazarModal" sec:authorize="hasRole('ADMIN')">
+            <div class="modal fade" id="rechazarModal" tabindex="-1"
+                 aria-labelledby="rechazarModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+
+                        <form th:action="@{/solicitud-recoleccion/rechazar}" method="post">
+                            <input type="hidden" name="idSolicitud" id="rechazarModalId"/>
+
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="rechazarModalLabel">
+                                    <i class="fa-solid fa-xmark"></i> [[#{solicitud.rechazar}]]
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>[[#{solicitud.descripcionPaquete}]]: <span id="rechazarModalDescripcion"></span></p>
+
+                                <label>[[#{solicitud.motivoRechazo}]]</label>
+                                <textarea name="motivoRechazo" class="form-control"
+                                          maxlength="255" rows="3" required></textarea>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fa-solid fa-xmark"></i> [[#{solicitud.rechazar}]]
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal cancelar para cliente -->
+        <section th:fragment="cancelarModal" sec:authorize="hasRole('CLIENTE')">
+            <div class="modal fade" id="cancelarSolicitudModal" tabindex="-1"
+                 aria-labelledby="cancelarSolicitudModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+
+                        <form th:action="@{/solicitud-recoleccion/cancelar}" method="post">
+                            <input type="hidden" name="idSolicitud" id="cancelarSolicitudModalId"/>
+
+                            <div class="modal-header bg-warning">
+                                <h5 class="modal-title" id="cancelarSolicitudModalLabel">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> [[#{solicitud.cancelar}]]
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <p>[[#{solicitud.confirmarCancelar}]] <span id="cancelarSolicitudModalDescripcion"></span>?</p>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fa-solid fa-ban"></i> [[#{solicitud.cancelar}]]
+                                </button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                    <i class="fa-solid fa-xmark"></i> [[#{accion.cerrar}]]
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </body>
+</html>

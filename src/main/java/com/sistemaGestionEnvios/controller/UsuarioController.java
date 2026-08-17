@@ -58,33 +58,26 @@ public class UsuarioController {
         return "redirect:/usuario/listado";
     }
  
-    @PostMapping("/eliminar")
-    public String eliminar(@RequestParam Integer idUsuario,
+    @PostMapping("/cambiar-estado")
+    public String cambiarEstado(@RequestParam Integer idUsuario,
             RedirectAttributes redirectAttributes) {
         try {
-            usuarioService.delete(idUsuario);
+            usuarioService.cambiarEstado(idUsuario);
             redirectAttributes.addFlashAttribute("todoOk",
-                    messageSource.getMessage("mensaje.eliminado", null,
+                    messageSource.getMessage("usuario.estadoActualizado", null,
                             Locale.getDefault()));
         } catch (IllegalArgumentException e) {
-            // Captura argumento inválido para el mensaje de "no existe"
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.error01", null,
                             Locale.getDefault()));
-        } catch (IllegalStateException e) {
-            // Captura estado ilegal para el mensaje de "datos asociados"
-            redirectAttributes.addFlashAttribute("error",
-                    messageSource.getMessage("usuario.error02", null,
-                            Locale.getDefault()));
         } catch (NoSuchMessageException e) {
-            // Captura cualquier otra excepción inesperada
             redirectAttributes.addFlashAttribute("error",
                     messageSource.getMessage("usuario.error03", null,
                             Locale.getDefault()));
         }
         return "redirect:/usuario/listado";
     }
- 
+
     @GetMapping("/modificar/{idUsuario}")
     public String modificar(@PathVariable("idUsuario") Integer idUsuario,
             Model model, RedirectAttributes redirectAttributes) {

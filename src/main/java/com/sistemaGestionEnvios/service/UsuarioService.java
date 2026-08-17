@@ -151,7 +151,16 @@ public class UsuarioService {
                 .map(Rol::getRol)
                 .toList();
     }
- 
+
+    @Transactional
+    public void cambiarEstado(Integer idUsuario) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException(
+                "El usuario con ID " + idUsuario + " no existe."));
+        usuario.setActivo(!usuario.isActivo());
+        usuarioRepository.save(usuario);
+    }
+
     @Transactional
     public Usuario eliminarRol(String username, Integer idRol) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findByUsername(username);

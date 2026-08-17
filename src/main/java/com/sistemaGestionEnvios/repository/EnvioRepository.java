@@ -13,4 +13,8 @@ public interface EnvioRepository extends JpaRepository<Envio, Integer> {
     public List<Envio> findByEstadoEnvioIdEstado(Integer idEstado);
  
     public Envio findByCodigoSeguimiento(String codigoSeguimiento);
+    
+    public boolean existsBySolicitudIdSolicitud(Integer idSolicitud);
+    
+    public List<Envio> findByRepartidorIdRepartidor(Integer idRepartidor);
 }

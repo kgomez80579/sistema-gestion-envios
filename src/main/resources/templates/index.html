@@ -23,17 +23,17 @@
 
             <!-- Paquetes y Usuarios -->
             <div class="row mt-4">
-                <div class="col-md-6">
-                    <div class="card text-center">
-                        <div class="card-header bg-info text-white">
+                <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
+                    <div class="card card-inicio">
+                        <div class="card-header">
                             <h4>Paquetes</h4>
                         </div>
 
                         <div class="card-body">
-                            <i class="fa-solid fa-box fa-4x mb-3"></i>
+                            <i class="fa-solid fa-box icono-inicio"></i>
                             <p>Gestión de paquetes registrados en el sistema.</p>
                             <a th:href="@{/paquete/listado}"
-                               class="btn btn-dark">
+                               class="btn btn-primary">
                                 Ver paquetes
                             </a>
                         </div>
@@ -41,16 +41,16 @@
                 </div>
 
 
-                <div class="col-md-6">
-                    <div class="card text-center">
-                        <div class="card-header bg-info text-white">
+                <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
+                    <div class="card card-inicio">
+                        <div class="card-header">
                             <h4>Usuarios</h4>
                         </div>
 
                         <div class="card-body">
-                            <i class="fa-solid fa-users fa-4x mb-3"></i>
+                            <i class="fa-solid fa-users icono-inicio"></i>
                             <p>Administración de usuarios y roles del sistema.</p>
-                            <a th:href="@{/usuario/listado}" class="btn btn-dark">
+                            <a th:href="@{/usuario/listado}" class="btn btn-primary">
                                 Ver usuarios
                             </a>
                         </div>
@@ -61,30 +61,30 @@
 
             <!-- Clientes y Direcciones -->
             <div class="row mt-4">
-                <div class="col-md-6">
-                    <div class="card text-center">
-                        <div class="card-header bg-info text-white">
+                <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
+                    <div class="card card-inicio">
+                        <div class="card-header">
                             <h4>Clientes</h4>
                         </div>
                         <div class="card-body">
-                            <i class="fa-solid fa-user-check fa-4x mb-3"></i>
+                            <i class="fa-solid fa-user-check icono-inicio"></i>
                             <p>Gestión de clientes registrados en el sistema.</p>
-                            <a th:href="@{/cliente/listado}" class="btn btn-dark">
+                            <a th:href="@{/cliente/listado}" class="btn btn-primary">
                                 Ver clientes
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="card text-center">
-                        <div class="card-header bg-info text-white">
+                <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
+                    <div class="card card-inicio">
+                        <div class="card-header">
                             <h4>Direcciones</h4>
                         </div>
                         <div class="card-body">
-                            <i class="fa-solid fa-location-dot fa-4x mb-3"></i>
+                            <i class="fa-solid fa-location-dot icono-inicio"></i>
                             <p>Gestión de direcciones registradas en el sistema.</p>
-                            <a th:href="@{/direccion/listado}" class="btn btn-dark">
+                            <a th:href="@{/direccion/listado}" class="btn btn-primary">
                                 Ver direcciones
                             </a>
                         </div>
@@ -95,30 +95,30 @@
 
             <!-- Repartidores y Estados -->
             <div class="row mt-4">
-                <div class="col-md-6">
-                    <div class="card text-center">
-                        <div class="card-header bg-info text-white">
+                <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
+                    <div class="card card-inicio">
+                        <div class="card-header">
                             <h4>Repartidores</h4>
                         </div>
                         <div class="card-body">
-                            <i class="fa-solid fa-truck-fast fa-4x mb-3"></i>
+                            <i class="fa-solid fa-truck-fast icono-inicio"></i>
                             <p>Gestión de repartidores registrados en el sistema.</p>
-                            <a th:href="@{/repartidor/listado}" class="btn btn-dark">
+                            <a th:href="@{/repartidor/listado}" class="btn btn-primary">
                                 Ver repartidores
                             </a>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="card text-center">
-                        <div class="card-header bg-info text-white">
+                <div class="col-md-6" sec:authorize="hasRole('ADMIN')">
+                    <div class="card card-inicio">
+                        <div class="card-header">
                             <h4>Estados de Envío</h4>
                         </div>
                         <div class="card-body">
-                            <i class="fa-solid fa-flag fa-4x mb-3"></i>
+                            <i class="fa-solid fa-flag icono-inicio"></i>
                             <p>Catálogo de estados disponibles para los envíos.</p>
-                            <a th:href="@{/estado-envio/listado}" class="btn btn-dark">
+                            <a th:href="@{/estado-envio/listado}" class="btn btn-primary">
                                 Ver estados de envío
                             </a>
                         </div>
@@ -130,14 +130,14 @@
             <div class="row mt-4 mb-5">
                 <div class="col-md-3"></div>
                 <div class="col-md-6">
-                    <div class="card text-center">
-                        <div class="card-header bg-info text-white">
+                    <div class="card card-inicio">
+                        <div class="card-header">
                             <h4>Envíos</h4>
                         </div>
                         <div class="card-body">
-                            <i class="fa-solid fa-truck-fast fa-4x mb-3"></i>
+                            <i class="fa-solid fa-truck-fast icono-inicio"></i>
                             <p>Gestión y seguimiento de los envíos registrados.</p>
-                            <a th:href="@{/envio/listado}" class="btn btn-dark">
+                            <a th:href="@{/envio/listado}" class="btn btn-primary">
                                 Ver envíos
                             </a>
                         </div>

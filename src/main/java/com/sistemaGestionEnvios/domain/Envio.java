@@ -29,6 +29,10 @@ public class Envio implements Serializable {
     @JoinColumn(name = "id_repartidor")
     private Repartidor repartidor;
  
+    @OneToOne
+    @JoinColumn(name = "id_solicitud", unique = true)
+    private SolicitudRecoleccion solicitud;
+    
     @ManyToOne
     @JoinColumn(name = "id_direccion_origen", nullable = false)
     private Direccion direccionOrigen;

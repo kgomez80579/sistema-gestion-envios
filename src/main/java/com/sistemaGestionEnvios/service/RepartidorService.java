@@ -51,7 +51,12 @@ public class RepartidorService {
             throw e;
         }
     }
- 
+
+    @Transactional(readOnly = true)
+    public Optional<Repartidor> getRepartidorPorUsuario(Integer idUsuario) {
+        return repartidorRepository.findByUsuarioIdUsuario(idUsuario);
+    }
+
     @Transactional
     public void guardarImagenes(Integer idRepartidor, MultipartFile fotoFile, MultipartFile licenciaFile) throws IOException {
         Repartidor repartidor = repartidorRepository.findById(idRepartidor)
